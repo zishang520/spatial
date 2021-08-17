@@ -1,0 +1,21 @@
+{
+    "name": "luoyy/spatial",
+    "description": "aliyun-php-sdk-core-pns",
+    "require": {
+        "php": ">=7.2.0"
+    },
+    "authors": [{
+        "name": "luoyy",
+        "email": "zishang520@gmail.com"
+    }],
+    "keywords": ["spatial", "php-spatial", "gps", "laravel", "lumen"],
+    "support": {
+        "issues": "https://github.com/zishang520/spatial/issues",
+        "source": "https://github.com/zishang520/spatial"
+    },
+    "autoload": {
+        "psr-4": {
+            "luoyy\\Spatial\\": "src/"
+        }
+    }
+}
