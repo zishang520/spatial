@@ -24,18 +24,15 @@ class Polygon implements JsonSerializable
      */
     public function __construct(Point ...$points)
     {
-        $this->points = $points;
-        if (count($this->points) < 3) {
-            throw new LengthException('Polygon requires at least three points');
-        }
+        $this->setPoints(...$points);
     }
 
     public function setPoints(Point ...$points): self
     {
-        $this->points = $points;
         if (count($this->points) < 3) {
-            throw new LengthException('Polygon requires at least three points');
+            throw new LengthException('Polygon requires at least three points.');
         }
+        $this->points = $points;
         return $this;
     }
 

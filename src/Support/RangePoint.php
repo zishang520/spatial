@@ -40,10 +40,10 @@ class RangePoint implements JsonSerializable
      */
     public function __construct(float $maxLongitude, float $maxLatitude, float $minLongitude, float $minLatitude)
     {
-        $this->maxLongitude = $maxLongitude;
-        $this->maxLatitude = $maxLatitude;
-        $this->minLongitude = $minLongitude;
-        $this->minLatitude = $minLatitude;
+        $this->setMaxLongitude($maxLongitude);
+        $this->setMaxLatitude($maxLatitude);
+        $this->setMinLongitude($minLongitude);
+        $this->setMinLatitude($minLatitude);
     }
 
     public function setMaxLatitude(float $maxLatitude): self

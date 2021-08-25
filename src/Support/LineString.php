@@ -19,7 +19,7 @@ class LineString implements JsonSerializable
      */
     public function __construct(Point ...$points)
     {
-        $this->points = $points;
+        $this->setPoints(...$points);
     }
 
     public function setPoints(Point ...$points): self

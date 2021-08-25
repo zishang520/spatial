@@ -20,39 +20,47 @@ class Point implements JsonSerializable
     public $latitude;
 
     /**
-     * WGS84坐标点.
+     * 是否自动修正.
+     * @var bool
+     */
+    protected $noAutofix = false;
+
+    /**
+     * 坐标点.
      * @copyright (c) zishang520 All Rights Reserved
      * @param float $longitude 经度
      * @param float $latitude 纬度
+     * @param bool|null $noAutofix noAutoFix表示是否自动将经度修正到 [-180,180] 区间内，缺省为false
      * @throw RangeException
      */
-    public function __construct(float $longitude, float $latitude)
+    public function __construct(float $longitude, float $latitude, ?bool $noAutofix = null)
     {
-        $this->longitude = $longitude;
-        if ($this->longitude < -180 || $this->longitude > 180) {
-            throw new RangeException('The longitude range must be between -180 and 180');
-        }
-        $this->latitude = $latitude;
-        if ($this->latitude < -90 || $this->latitude > 90) {
-            throw new RangeException('The latitude range must be between -90 and 90');
-        }
+        $this->noAutofix = $noAutofix ?? $this->noAutofix;
+        $this->setLongitude($longitude);
+        $this->setLatitude($latitude);
     }
 
     public function setLatitude(float $latitude): self
     {
-        $this->latitude = $latitude;
-        if ($this->latitude < -90 || $this->latitude > 90) {
-            throw new RangeException('The latitude range must be between -90 and 90');
+        if (!is_finite($latitude)) {
+            throw new RangeException('Latitude must be a finite value.');
         }
+        if (!$this->noAutofix) {
+            $latitude = max(min($latitude, 90), -90);
+        }
+        $this->latitude = $latitude;
         return $this;
     }
 
     public function setLongitude(float $longitude): self
     {
-        $this->longitude = $longitude;
-        if ($this->longitude < -180 || $this->longitude > 180) {
-            throw new RangeException('The longitude range must be between -180 and 180');
+        if (!is_finite($longitude)) {
+            throw new RangeException('Longitude must be a finite value.');
         }
+        if (!$this->noAutofix) {
+            $longitude = ($longitude + 180) % 360 + (-180 > $longitude || $longitude === 180 ? 180 : -180);
+        }
+        $this->longitude = $longitude;
         return $this;
     }
 
