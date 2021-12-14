@@ -127,7 +127,7 @@ class Spatial
             case self::DIRECTION_UP:
                 return new Point($point->longitude, $point->latitude + $range);
                 break;
-            case self::DIRECTION_UP:
+            case self::DIRECTION_DOWN:
                 return new Point($point->longitude, $point->latitude - $range);
                 break;
         }
