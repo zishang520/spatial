@@ -48,7 +48,7 @@ class Spatial
     {
         $initial = null;
         $result = 0.0;
-        foreach ($lineString->points as $point) {
+        foreach ($lineString->getIterator() as $point) {
             if (!is_null($initial)) {
                 $result += self::distance($initial, $point, $radius);
             }
@@ -66,11 +66,13 @@ class Spatial
      */
     public static function ringArea(Polygon $polygon, float $radius = self::EARTH_RADIUS): float
     {
-        $polygon->addPoint($polygon->points[0]);
+        if (end($polygon->points) != $polygon->points[0]) {
+            $polygon->addPoint($polygon->points[0]);
+        }
         $i = $radius * self::PI / 180;
         $initial = null;
         $result = 0.0;
-        foreach ($polygon->points as $point) {
+        foreach ($polygon->getIterator() as $point) {
             if (!is_null($initial)) {
                 $result += ($initial->longitude * $i * cos($initial->latitude * self::PI / 180) * $point->latitude * $i - $point->longitude * $i * cos($point->latitude * self::PI / 180) * $initial->latitude * $i);
             }

@@ -70,6 +70,11 @@ class RangePoint implements JsonSerializable
         return $this;
     }
 
+    public function getPolygon(): Polygon
+    {
+        return new Polygon(new Point($this->minLongitude, $this->maxLatitude), new Point($this->maxLongitude, $this->maxLatitude), new Point($this->maxLongitude, $this->minLatitude), new Point($this->minLongitude, $this->minLatitude));
+    }
+
     public function toArray()
     {
         return [

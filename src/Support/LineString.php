@@ -2,9 +2,11 @@
 
 namespace luoyy\Spatial\Support;
 
+use IteratorAggregate;
 use JsonSerializable;
+use Traversable;
 
-class LineString implements JsonSerializable
+class LineString implements JsonSerializable, IteratorAggregate
 {
     /**
      * 坐标点.
@@ -32,6 +34,11 @@ class LineString implements JsonSerializable
     {
         array_push($this->points, $point);
         return $this;
+    }
+
+    public function getIterator(): Traversable
+    {
+        yield from $this->points;
     }
 
     public function toArray()
