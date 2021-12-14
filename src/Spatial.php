@@ -2,6 +2,7 @@
 
 namespace luoyy\Spatial;
 
+use InvalidArgumentException;
 use luoyy\Spatial\Support\LineString;
 use luoyy\Spatial\Support\Point;
 use luoyy\Spatial\Support\Polygon;
@@ -18,6 +19,14 @@ class Spatial
      * 百度地球半径.
      */
     public const BD_EARTH_RADIUS = 6370996.81;
+
+    public const DIRECTION_UP = 8;
+
+    public const DIRECTION_DOWN = 2;
+
+    public const DIRECTION_LEFT = 4;
+
+    public const DIRECTION_RIGHT = 6;
 
     /**
      * PI.
@@ -94,6 +103,36 @@ class Spatial
         $range = 180 / self::PI * $dist / $radius;
         $lngR = $range / cos($point->latitude * self::PI / 180);
         return new RangePoint($point->longitude + $lngR, $point->latitude + $range, $point->longitude - $lngR, $point->latitude - $range);
+    }
+
+    /**
+     * 平移一个点.
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param Point $point 坐标点
+     * @param int $dist 距离/M
+     * @param int $direction 方向 8 up 2 down 4 left 6 right
+     * @param float $radius 球半径
+     * @return Point 移动后的坐标点
+     */
+    public static function pointPanning(Point $point, int $dist, int $direction, float $radius = self::EARTH_RADIUS): Point
+    {
+        $range = 180 / self::PI * $dist / $radius;
+        switch ($direction) {
+            case self::DIRECTION_LEFT:
+                return new Point($point->longitude - ($range / cos($point->latitude * self::PI / 180)), $point->latitude);
+                break;
+            case self::DIRECTION_RIGHT:
+                return new Point($point->longitude + ($range / cos($point->latitude * self::PI / 180)), $point->latitude);
+                break;
+            case self::DIRECTION_UP:
+                return new Point($point->longitude, $point->latitude + $range);
+                break;
+            case self::DIRECTION_UP:
+                return new Point($point->longitude, $point->latitude - $range);
+                break;
+        }
+
+        throw new InvalidArgumentException('Invalid pan direction.');
     }
 
     /**
