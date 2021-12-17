@@ -46,18 +46,26 @@ class Polygon implements JsonSerializable, IteratorAggregate
 
     public function getIterator(): Traversable
     {
-        yield from $this->points;
+        yield from $this->build();
     }
 
     public function toArray()
     {
         return [
-            'points' => array_map(function ($point) {return $point->toArray(); }, $this->points),
+            'points' => array_map(function ($point) {return $point->toArray(); }, $this->build()),
         ];
     }
 
     public function jsonSerialize()
     {
         return $this->toArray();
+    }
+
+    protected function build()
+    {
+        if (end($this->points) != $this->points[0]) {
+            $this->addPoint($this->points[0]);
+        }
+        return $this->points;
     }
 }

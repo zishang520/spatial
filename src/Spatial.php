@@ -75,9 +75,6 @@ class Spatial
      */
     public static function ringArea(Polygon $polygon, float $radius = self::EARTH_RADIUS): float
     {
-        if (end($polygon->points) != $polygon->points[0]) {
-            $polygon->addPoint($polygon->points[0]);
-        }
         $i = $radius * self::PI / 180;
         $initial = null;
         $result = 0.0;
