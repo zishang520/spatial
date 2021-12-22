@@ -31,7 +31,9 @@ class Spatial
     /**
      * PI.
      */
-    protected const PI = 3.1415926535897932384626;
+    public const PI = 3.1415926535897932384626;
+
+    public const RADIAN = self::PI / 180;
 
     /**
      * 计算两点之间的距离.
@@ -43,7 +45,7 @@ class Spatial
      */
     public static function distance(Point $point1, Point $point2, float $radius = self::EARTH_RADIUS): float
     {
-        return 2 * $radius * asin(sqrt((1 - cos($point2->latitude * self::PI / 180 - $point1->latitude * self::PI / 180) + (1 - cos($point2->longitude * self::PI / 180 - $point1->longitude * self::PI / 180)) * cos($point2->latitude * self::PI / 180) * cos($point1->latitude * self::PI / 180)) / 2));
+        return 2 * $radius * asin(sqrt((1 - cos($point2->latitude * self::RADIAN - $point1->latitude * self::RADIAN) + (1 - cos($point2->longitude * self::RADIAN - $point1->longitude * self::RADIAN)) * cos($point2->latitude * self::RADIAN) * cos($point1->latitude * self::RADIAN)) / 2));
     }
 
     /**
@@ -75,12 +77,12 @@ class Spatial
      */
     public static function ringArea(Polygon $polygon, float $radius = self::EARTH_RADIUS): float
     {
-        $i = $radius * self::PI / 180;
+        $i = $radius * self::RADIAN;
         $initial = null;
         $result = 0.0;
         foreach ($polygon->getIterator() as $point) {
             if (!is_null($initial)) {
-                $result += ($initial->longitude * $i * cos($initial->latitude * self::PI / 180) * $point->latitude * $i - $point->longitude * $i * cos($point->latitude * self::PI / 180) * $initial->latitude * $i);
+                $result += ($initial->longitude * $i * cos($initial->latitude * self::RADIAN) * $point->latitude * $i - $point->longitude * $i * cos($point->latitude * self::RADIAN) * $initial->latitude * $i);
             }
             $initial = $point;
         }
@@ -98,7 +100,7 @@ class Spatial
     public static function pointRange(Point $point, int $dist, float $radius = self::EARTH_RADIUS): RangePoint
     {
         $range = 180 / self::PI * $dist / $radius;
-        $lngR = $range / cos($point->latitude * self::PI / 180);
+        $lngR = $range / cos($point->latitude * self::RADIAN);
         return new RangePoint($point->longitude + $lngR, $point->latitude + $range, $point->longitude - $lngR, $point->latitude - $range);
     }
 
@@ -116,10 +118,10 @@ class Spatial
         $range = 180 / self::PI * $dist / $radius;
         switch ($direction) {
             case self::DIRECTION_LEFT:
-                return new Point($point->longitude - ($range / cos($point->latitude * self::PI / 180)), $point->latitude);
+                return new Point($point->longitude - ($range / cos($point->latitude * self::RADIAN)), $point->latitude);
                 break;
             case self::DIRECTION_RIGHT:
-                return new Point($point->longitude + ($range / cos($point->latitude * self::PI / 180)), $point->latitude);
+                return new Point($point->longitude + ($range / cos($point->latitude * self::RADIAN)), $point->latitude);
                 break;
             case self::DIRECTION_UP:
                 return new Point($point->longitude, $point->latitude + $range);
@@ -130,6 +132,41 @@ class Spatial
         }
 
         throw new InvalidArgumentException('Invalid pan direction.');
+    }
+
+    /**
+     * 一个点按照某个角度（正北开始）和距离获得下一个点.
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param Point $point 坐标点
+     * @param int $dist 距离/M
+     * @param int $bearing 角度 [0-360]
+     * @param float $radius 球半径
+     * @return Point 移动后的坐标点
+     */
+    public static function panning(Point $point, int $dist, int $bearing, float $radius = self::EARTH_RADIUS): Point
+    {
+        $scale = $dist / $radius;
+        $fai = $point->latitude * self::RADIAN;
+        $bear = fmod($bearing, 360) * self::RADIAN;
+        $end_lat = asin(sin($fai) * cos($scale) + cos($fai) * sin($scale) * cos($bear));
+        $end_lng = $point->longitude + atan2(sin($bear) * sin($scale) * cos($fai), cos($scale) - sin($fai) * sin($end_lat)) / self::RADIAN;
+        return new Point(fmod($end_lng + 540, 360) - 180, $end_lat / self::RADIAN);
+    }
+
+    /**
+     * 计算两点之间的角度.
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param Point $point1 坐标1
+     * @param Point $point2 坐标2
+     * @return float 角度
+     */
+    public static function bearing(Point $point1, Point $point2): float
+    {
+        $fat = $point1->latitude * self::RADIAN;
+        $fai2 = $point2->latitude * self::RADIAN;
+        $temp = ($point2->longitude - $point1->longitude) * self::RADIAN;
+        $bearing = atan2(sin($temp) * cos($fai2), cos($fat) * sin($fai2) - sin($fat) * cos($fai2) * cos($temp)) / self::RADIAN;
+        return ($bearing < 0) ? $bearing + 360 : $bearing;
     }
 
     /**
