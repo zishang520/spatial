@@ -19,6 +19,12 @@ class Polygon implements JsonSerializable, IteratorAggregate
     public $points;
 
     /**
+     * 是否输出数组.
+     * @var bool
+     */
+    protected $useArray = false;
+
+    /**
      * 多边形.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $points 点
@@ -49,11 +55,19 @@ class Polygon implements JsonSerializable, IteratorAggregate
         yield from $this->build();
     }
 
+    /**
+     * 是否输出数组.
+     * @copyright (c) zishang520 All Rights Reserved
+     */
+    public function useArray(bool $useArray = true)
+    {
+        $this->useArray = $useArray;
+        return $this;
+    }
+
     public function toArray()
     {
-        return [
-            'points' => array_map(function ($point) {return $point->toArray(); }, $this->build()),
-        ];
+        return $this->useArray ? array_map(function ($point) {return $point->useArray($this->useArray)->toArray(); }, $this->build()) : ['points' => array_map(function ($point) {return $point->useArray($this->useArray)->toArray(); }, $this->build())];
     }
 
     public function jsonSerialize()

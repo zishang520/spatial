@@ -26,6 +26,12 @@ class Point implements JsonSerializable
     protected $noAutofix = false;
 
     /**
+     * 是否输出数组.
+     * @var bool
+     */
+    protected $useArray = false;
+
+    /**
      * 坐标点.
      * @copyright (c) zishang520 All Rights Reserved
      * @param float $longitude 经度
@@ -64,12 +70,19 @@ class Point implements JsonSerializable
         return $this;
     }
 
+    /**
+     * 是否输出数组.
+     * @copyright (c) zishang520 All Rights Reserved
+     */
+    public function useArray(bool $useArray = true)
+    {
+        $this->useArray = $useArray;
+        return $this;
+    }
+
     public function toArray()
     {
-        return [
-            'longitude' => $this->longitude,
-            'latitude' => $this->latitude,
-        ];
+        return $this->useArray ? [$this->longitude, $this->latitude] : ['longitude' => $this->longitude, 'latitude' => $this->latitude];
     }
 
     public function jsonSerialize()

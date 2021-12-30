@@ -15,6 +15,12 @@ class LineString implements JsonSerializable, IteratorAggregate
     public $points;
 
     /**
+     * 是否输出数组.
+     * @var bool
+     */
+    protected $useArray = false;
+
+    /**
      * 线.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $points 点
@@ -41,11 +47,19 @@ class LineString implements JsonSerializable, IteratorAggregate
         yield from $this->points;
     }
 
+    /**
+     * 是否输出数组.
+     * @copyright (c) zishang520 All Rights Reserved
+     */
+    public function useArray(bool $useArray = true)
+    {
+        $this->useArray = $useArray;
+        return $this;
+    }
+
     public function toArray()
     {
-        return [
-            'points' => array_map(function ($point) {return $point->toArray(); }, $this->points),
-        ];
+        return $this->useArray ? array_map(function ($point) {return $point->useArray($this->useArray)->toArray(); }, $this->points) : ['points' => array_map(function ($point) {return $point->useArray($this->useArray)->toArray(); }, $this->points)];
     }
 
     public function jsonSerialize()
