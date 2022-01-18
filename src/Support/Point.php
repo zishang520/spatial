@@ -2,10 +2,6 @@
 
 namespace luoyy\Spatial\Support;
 
-use luoyy\Spatial\Contracts\Point as ContractsPoint;
-use luoyy\Spatial\Transform;
-
-class Point extends ContractsPoint
+class Point extends PointWGS84
 {
-    public const COORDINATE_SYSTEM = Transform::WGS84;
 }
