@@ -173,13 +173,12 @@ class Spatial
      * 转换一个坐标.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $point 原坐标
-     * @param string $from 来源坐标 [BD09, WGS84, GCJ02]
      * @param string $to 目标坐标 [BD09, WGS84, GCJ02]
      * @return Point 目标坐标
      * @throw InvalidArgumentException
      */
-    public static function transform(Point $point, string $from, string $to): Point
+    public static function transform(Point $point, string $to): Point
     {
-        return Transform::transform($point, $from, $to);
+        return Transform::transform($point, $to);
     }
 }

@@ -95,6 +95,6 @@ abstract class Point implements JsonSerializable
 
     public function transform(string $to): Point
     {
-        return Transform::transform($this, static::COORDINATE_SYSTEM, $to);
+        return Transform::transform($this, $to);
     }
 }
