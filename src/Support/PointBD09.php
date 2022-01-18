@@ -7,5 +7,5 @@ use luoyy\Spatial\Transform;
 
 class PointBD09 extends ContractsPoint
 {
-    protected const COORDINATE_SYSTEM = Transform::BD09;
+    public const COORDINATE_SYSTEM = Transform::BD09;
 }

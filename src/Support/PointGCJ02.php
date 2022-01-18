@@ -7,5 +7,5 @@ use luoyy\Spatial\Transform;
 
 class PointGCJ02 extends ContractsPoint
 {
-    protected const COORDINATE_SYSTEM = Transform::GCJ02;
+    public const COORDINATE_SYSTEM = Transform::GCJ02;
 }

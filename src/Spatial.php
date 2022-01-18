@@ -3,8 +3,8 @@
 namespace luoyy\Spatial;
 
 use InvalidArgumentException;
+use luoyy\Spatial\Contracts\Point;
 use luoyy\Spatial\Support\LineString;
-use luoyy\Spatial\Support\Point;
 use luoyy\Spatial\Support\Polygon;
 use luoyy\Spatial\Support\RangePoint;
 
@@ -118,16 +118,16 @@ class Spatial
         $range = 180 / self::PI * $dist / $radius;
         switch ($direction) {
             case self::DIRECTION_LEFT:
-                return new Point($point->longitude - ($range / cos($point->latitude * self::RADIAN)), $point->latitude);
+                return $point->setLongitude($point->longitude - ($range / cos($point->latitude * self::RADIAN)))->setLatitude($point->latitude);
                 break;
             case self::DIRECTION_RIGHT:
-                return new Point($point->longitude + ($range / cos($point->latitude * self::RADIAN)), $point->latitude);
+                return $point->setLongitude($point->longitude + ($range / cos($point->latitude * self::RADIAN)))->setLatitude($point->latitude);
                 break;
             case self::DIRECTION_UP:
-                return new Point($point->longitude, $point->latitude + $range);
+                return $point->setLongitude($point->longitude)->setLatitude($point->latitude + $range);
                 break;
             case self::DIRECTION_DOWN:
-                return new Point($point->longitude, $point->latitude - $range);
+                return $point->setLongitude($point->longitude)->setLatitude($point->latitude - $range);
                 break;
         }
 
@@ -150,7 +150,7 @@ class Spatial
         $bear = fmod($bearing, 360) * self::RADIAN;
         $end_lat = asin(sin($fai) * cos($scale) + cos($fai) * sin($scale) * cos($bear));
         $end_lng = $point->longitude + atan2(sin($bear) * sin($scale) * cos($fai), cos($scale) - sin($fai) * sin($end_lat)) / self::RADIAN;
-        return new Point(fmod($end_lng + 540, 360) - 180, $end_lat / self::RADIAN);
+        return $point->setLongitude(fmod($end_lng + 540, 360) - 180)->setLatitude($end_lat / self::RADIAN);
     }
 
     /**

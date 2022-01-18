@@ -4,6 +4,7 @@ namespace luoyy\Spatial\Support;
 
 use IteratorAggregate;
 use JsonSerializable;
+use luoyy\Spatial\Contracts\Point;
 use Traversable;
 
 class LineString implements JsonSerializable, IteratorAggregate

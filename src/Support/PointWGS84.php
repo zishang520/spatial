@@ -7,5 +7,5 @@ use luoyy\Spatial\Transform;
 
 class PointWGS84 extends ContractsPoint
 {
-    protected const COORDINATE_SYSTEM = Transform::WGS84;
+    public const COORDINATE_SYSTEM = Transform::WGS84;
 }

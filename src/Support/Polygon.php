@@ -5,6 +5,7 @@ namespace luoyy\Spatial\Support;
 use IteratorAggregate;
 use JsonSerializable;
 use LengthException;
+use luoyy\Spatial\Contracts\Point;
 use Traversable;
 
 /**

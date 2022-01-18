@@ -8,7 +8,7 @@ use RangeException;
 
 abstract class Point implements JsonSerializable
 {
-    protected const COORDINATE_SYSTEM = Transform::WGS84;
+    public const COORDINATE_SYSTEM = Transform::WGS84;
 
     /**
      * 经度.

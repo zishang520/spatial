@@ -48,7 +48,7 @@ class Transform
      */
     public static function BD09_WGS84(PointBD09 $point): PointWGS84
     {
-        return self::GCJ02_WGS84(self::BD09_GCJ02($point));
+        return static::GCJ02_WGS84(static::BD09_GCJ02($point));
     }
 
     /**
@@ -58,7 +58,7 @@ class Transform
      */
     public static function WGS84_BD09(PointWGS84 $point): PointBD09
     {
-        return self::GCJ02_BD09(self::WGS84_GCJ02($point));
+        return static::GCJ02_BD09(static::WGS84_GCJ02($point));
     }
 
     /**
@@ -68,11 +68,11 @@ class Transform
      */
     public static function WGS84_GCJ02(PointWGS84 $point): PointGCJ02
     {
-        if (!self::in_china($point)) {
+        if (!static::in_china($point)) {
             return $point;
         }
-        $dlat = self::transformLat(new PointWGS84($point->longitude - 105.0, $point->latitude - 35.0));
-        $dlng = self::transformLng(new PointWGS84($point->longitude - 105.0, $point->latitude - 35.0));
+        $dlat = static::transformLat(new PointWGS84($point->longitude - 105.0, $point->latitude - 35.0));
+        $dlng = static::transformLng(new PointWGS84($point->longitude - 105.0, $point->latitude - 35.0));
         $radlat = $point->latitude / 180.0 * self::PI;
         $magic = sin($radlat);
         $magic = 1 - self::FLATNESS * $magic * $magic;
@@ -101,11 +101,11 @@ class Transform
      */
     public static function GCJ02_WGS84(PointGCJ02 $point): PointWGS84
     {
-        if (!self::in_china($point)) {
+        if (!static::in_china($point)) {
             return $point;
         }
-        $dlat = self::transformLat(new PointGCJ02($point->longitude - 105.0, $point->latitude - 35.0));
-        $dlng = self::transformLng(new PointGCJ02($point->longitude - 105.0, $point->latitude - 35.0));
+        $dlat = static::transformLat(new PointGCJ02($point->longitude - 105.0, $point->latitude - 35.0));
+        $dlng = static::transformLng(new PointGCJ02($point->longitude - 105.0, $point->latitude - 35.0));
         $radlat = $point->latitude / 180.0 * self::PI;
         $magic = sin($radlat);
         $magic = 1 - self::FLATNESS * $magic * $magic;
@@ -124,15 +124,15 @@ class Transform
      * @return \luoyy\Spatial\Contracts\Point 目标坐标
      * @throw InvalidArgumentException
      */
-    public static function transform(ContractsPoint $point, string $from, string $to): ContractsPoint
+    public static function transform(ContractsPoint $point, string $to): ContractsPoint
     {
-        if ($from == $to) {
+        if (($from = $point::COORDINATE_SYSTEM) == $to) {
             return $point;
         }
-        if (!method_exists(self::class, $method = sprintf('%s_%s', $from, $to))) {
+        if (!method_exists(static::class, $method = sprintf('%s_%s', $from, $to))) {
             throw new InvalidArgumentException("Conversion type [{$from}] to [{$to}] is not supported, acceptable types: BD09, WGS84, GCJ02.");
         }
-        return call_user_func([self::class, $method], $point);
+        return call_user_func([static::class, $method], $point);
     }
 
     protected static function transformLat(ContractsPoint $point): float
