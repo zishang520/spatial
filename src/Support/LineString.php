@@ -58,12 +58,12 @@ class LineString implements JsonSerializable, IteratorAggregate
         return $this;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return $this->useArray ? array_map(function ($point) {return $point->useArray($this->useArray)->toArray(); }, $this->points) : ['points' => array_map(function ($point) {return $point->useArray($this->useArray)->toArray(); }, $this->points)];
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }

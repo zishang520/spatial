@@ -80,7 +80,7 @@ class RangePoint implements JsonSerializable
         return new Polygon(new $class($this->minLongitude, $this->maxLatitude), new $class($this->maxLongitude, $this->maxLatitude), new $class($this->maxLongitude, $this->minLatitude), new $class($this->minLongitude, $this->minLatitude));
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'maxLongitude' => $this->maxLongitude,
@@ -90,7 +90,7 @@ class RangePoint implements JsonSerializable
         ];
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }

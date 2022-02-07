@@ -83,12 +83,12 @@ abstract class Point implements JsonSerializable
         return $this;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return $this->useArray ? [$this->longitude, $this->latitude] : ['longitude' => $this->longitude, 'latitude' => $this->latitude];
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }

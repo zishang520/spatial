@@ -66,12 +66,12 @@ class Polygon implements JsonSerializable, IteratorAggregate
         return $this;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return $this->useArray ? array_map(function ($point) {return $point->useArray($this->useArray)->toArray(); }, $this->build()) : ['points' => array_map(function ($point) {return $point->useArray($this->useArray)->toArray(); }, $this->build())];
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }
