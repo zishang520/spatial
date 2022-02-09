@@ -2,9 +2,8 @@
 
 namespace luoyy\Spatial\Support;
 
-use InvalidArgumentException;
 use JsonSerializable;
-use luoyy\Spatial\Transform;
+use luoyy\Spatial\Enums\PointEnum;
 
 class RangePoint implements JsonSerializable
 {
@@ -72,12 +71,9 @@ class RangePoint implements JsonSerializable
         return $this;
     }
 
-    public function getPolygon(string $to = Transform::WGS84): Polygon
+    public function getPolygon(PointEnum $to = PointEnum::WGS84): Polygon
     {
-        if (!class_exists($class = sprintf('\%s\Point%s', __NAMESPACE__, $to), true)) {
-            throw new InvalidArgumentException(sprintf('Coordinate system "%s" does not exist.', $to));
-        }
-        return new Polygon(new $class($this->minLongitude, $this->maxLatitude), new $class($this->maxLongitude, $this->maxLatitude), new $class($this->maxLongitude, $this->minLatitude), new $class($this->minLongitude, $this->minLatitude));
+        return new Polygon(new ($to->value)($this->minLongitude, $this->maxLatitude), new ($to->value)($this->maxLongitude, $this->maxLatitude), new ($to->value)($this->maxLongitude, $this->minLatitude), new ($to->value)($this->minLongitude, $this->minLatitude));
     }
 
     public function toArray(): array

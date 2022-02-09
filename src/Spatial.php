@@ -4,6 +4,7 @@ namespace luoyy\Spatial;
 
 use InvalidArgumentException;
 use luoyy\Spatial\Contracts\Point;
+use luoyy\Spatial\Enums\PointEnum;
 use luoyy\Spatial\Support\LineString;
 use luoyy\Spatial\Support\Polygon;
 use luoyy\Spatial\Support\RangePoint;
@@ -173,11 +174,11 @@ class Spatial
      * 转换一个坐标.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $point 原坐标
-     * @param string $to 目标坐标 [BD09, WGS84, GCJ02]
+     * @param PointEnum $to 目标坐标 [BD09, WGS84, GCJ02]
      * @return Point 目标坐标
      * @throw InvalidArgumentException
      */
-    public static function transform(Point $point, string $to): Point
+    public static function transform(Point $point, PointEnum $to): Point
     {
         return Transform::transform($point, $to);
     }

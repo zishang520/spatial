@@ -3,12 +3,13 @@
 namespace luoyy\Spatial\Contracts;
 
 use JsonSerializable;
+use luoyy\Spatial\Enums\PointEnum;
 use luoyy\Spatial\Transform;
 use RangeException;
 
 abstract class Point implements JsonSerializable
 {
-    public const COORDINATE_SYSTEM = Transform::WGS84;
+    public const COORDINATE_SYSTEM = PointEnum::WGS84;
 
     /**
      * 经度.
@@ -49,7 +50,7 @@ abstract class Point implements JsonSerializable
         $this->setLatitude($latitude);
     }
 
-    public function setLatitude(float $latitude): self
+    public function setLatitude(float $latitude): static
     {
         if (!is_finite($latitude)) {
             throw new RangeException('Latitude must be a finite value.');
@@ -61,7 +62,7 @@ abstract class Point implements JsonSerializable
         return $this;
     }
 
-    public function setLongitude(float $longitude): self
+    public function setLongitude(float $longitude): static
     {
         if (!is_finite($longitude)) {
             throw new RangeException('Longitude must be a finite value.');
@@ -93,7 +94,7 @@ abstract class Point implements JsonSerializable
         return $this->toArray();
     }
 
-    public function transform(string $to): Point
+    public function transform(PointEnum $to): Point
     {
         return Transform::transform($this, $to);
     }

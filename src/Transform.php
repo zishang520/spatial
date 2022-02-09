@@ -4,6 +4,7 @@ namespace luoyy\Spatial;
 
 use InvalidArgumentException;
 use luoyy\Spatial\Contracts\Point as ContractsPoint;
+use luoyy\Spatial\Enums\PointEnum;
 use luoyy\Spatial\Support\PointBD09;
 use luoyy\Spatial\Support\PointGCJ02;
 use luoyy\Spatial\Support\PointWGS84;
@@ -13,12 +14,6 @@ use luoyy\Spatial\Support\PointWGS84;
  */
 class Transform
 {
-    public const BD09 = 'BD09';
-
-    public const WGS84 = 'WGS84';
-
-    public const GCJ02 = 'GCJ02';
-
     protected const X_PI = 3.14159265358979324 * 3000.0 / 180.0;
 
     protected const PI = 3.1415926535897932384626;
@@ -120,17 +115,17 @@ class Transform
      * @copyright (c) zishang520 All Rights Reserved
      * @param \luoyy\Spatial\Contracts\Point $point 原坐标
      * @param string $from 来源坐标 [BD09, WGS84, GCJ02]
-     * @param string $to 目标坐标 [BD09, WGS84, GCJ02]
+     * @param PointEnum $to 目标坐标 [BD09, WGS84, GCJ02]
      * @return \luoyy\Spatial\Contracts\Point 目标坐标
      * @throw InvalidArgumentException
      */
-    public static function transform(ContractsPoint $point, string $to): ContractsPoint
+    public static function transform(ContractsPoint $point, PointEnum $to): ContractsPoint
     {
-        if (($from = $point::COORDINATE_SYSTEM) == $to) {
+        if (($from = $point::COORDINATE_SYSTEM) === $to) {
             return $point;
         }
-        if (!method_exists(static::class, $method = sprintf('%s_%s', $from, $to))) {
-            throw new InvalidArgumentException("Conversion type [{$from}] to [{$to}] is not supported, acceptable types: BD09, WGS84, GCJ02.");
+        if (!method_exists(static::class, $method = sprintf('%s_%s', $from->name, $to->name))) {
+            throw new InvalidArgumentException("Conversion type [{$from->name}] to [{$to->name}] is not supported, acceptable types: BD09, WGS84, GCJ02.");
         }
         return call_user_func([static::class, $method], $point);
     }
