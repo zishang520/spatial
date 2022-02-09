@@ -94,7 +94,7 @@ abstract class Point implements JsonSerializable
         return $this->toArray();
     }
 
-    public function transform(PointEnum $to): static
+    public function transform(PointEnum $to): Point
     {
         return Transform::transform($this, $to);
     }
