@@ -69,7 +69,7 @@ class Transform
     public static function WGS84_GCJ02(PointWGS84 $point): PointGCJ02
     {
         if (!static::in_china($point)) {
-            return $point;
+            return new PointGCJ02($point->longitude, $point->latitude);
         }
         $dlat = static::transformLat(new PointWGS84($point->longitude - 105.0, $point->latitude - 35.0));
         $dlng = static::transformLng(new PointWGS84($point->longitude - 105.0, $point->latitude - 35.0));
@@ -102,7 +102,7 @@ class Transform
     public static function GCJ02_WGS84(PointGCJ02 $point): PointWGS84
     {
         if (!static::in_china($point)) {
-            return $point;
+            return new PointWGS84($point->longitude, $point->latitude);
         }
         $dlat = static::transformLat(new PointGCJ02($point->longitude - 105.0, $point->latitude - 35.0));
         $dlng = static::transformLng(new PointGCJ02($point->longitude - 105.0, $point->latitude - 35.0));
@@ -112,7 +112,7 @@ class Transform
         $sqrtmagic = sqrt($magic);
         $dlat = ($dlat * 180.0) / ((self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS)) / ($magic * $sqrtmagic) * self::PI);
         $dlng = ($dlng * 180.0) / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI);
-        return new PointWGS84($point->longitude * 2 - $point->longitude + $dlng, $point->latitude * 2 - $point->latitude + $dlat);
+        return new PointWGS84($point->longitude * 2 - ($point->longitude + $dlng), $point->latitude * 2 - ($point->latitude + $dlat));
     }
 
     /**
