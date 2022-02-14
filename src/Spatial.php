@@ -137,7 +137,7 @@ class Spatial
         return $point->setLongitude(fmod($end_lng + 540, 360) - 180)->setLatitude($end_lat / self::RADIAN);
     }
 
-    public function panning(Point $point, int $dist, int $bearing, float $radius = self::EARTH_RADIUS): Point
+    public static function panning(Point $point, int $dist, int $bearing, float $radius = self::EARTH_RADIUS): Point
     {
         return static::move($point, $dist, $bearing, $radius);
     }
