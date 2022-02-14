@@ -51,7 +51,7 @@ abstract class Point implements JsonSerializable
         $this->setLatitude($latitude);
     }
 
-    public function setLatitude(float $latitude): static
+    public function setLatitude(float $latitude): Point
     {
         if (!is_finite($latitude)) {
             throw new RangeException('Latitude must be a finite value.');
@@ -63,7 +63,7 @@ abstract class Point implements JsonSerializable
         return $this;
     }
 
-    public function setLongitude(float $longitude): static
+    public function setLongitude(float $longitude): Point
     {
         if (!is_finite($longitude)) {
             throw new RangeException('Longitude must be a finite value.');
@@ -95,12 +95,12 @@ abstract class Point implements JsonSerializable
         return $this->toArray();
     }
 
-    public function transform(PointEnum $to): static
+    public function transform(PointEnum $to): Point
     {
         return Transform::transform($this, $to);
     }
 
-    public function move(int $dist, int $bearing, float $radius = Spatial::EARTH_RADIUS): static
+    public function move(int $dist, int $bearing, float $radius = Spatial::EARTH_RADIUS): Point
     {
         return Spatial::move($this, $dist, $bearing, $radius);
     }
