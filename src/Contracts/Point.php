@@ -4,6 +4,7 @@ namespace luoyy\Spatial\Contracts;
 
 use JsonSerializable;
 use luoyy\Spatial\Enums\PointEnum;
+use luoyy\Spatial\Spatial;
 use luoyy\Spatial\Transform;
 use RangeException;
 
@@ -94,8 +95,13 @@ abstract class Point implements JsonSerializable
         return $this->toArray();
     }
 
-    public function transform(PointEnum $to): Point
+    public function transform(PointEnum $to): static
     {
         return Transform::transform($this, $to);
+    }
+
+    public function move(int $dist, int $bearing, float $radius = Spatial::EARTH_RADIUS): static
+    {
+        return Spatial::move($this, $dist, $bearing, $radius);
     }
 }

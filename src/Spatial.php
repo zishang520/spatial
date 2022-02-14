@@ -119,7 +119,7 @@ class Spatial
     }
 
     /**
-     * 一个点按照某个角度（正北开始）和距离获得下一个点.
+     * 移动一个点.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $point 坐标点
      * @param int $dist 距离/M
@@ -127,7 +127,7 @@ class Spatial
      * @param float $radius 球半径
      * @return Point 移动后的坐标点
      */
-    public static function panning(Point $point, int $dist, int $bearing, float $radius = self::EARTH_RADIUS): Point
+    public static function move(Point $point, int $dist, int $bearing, float $radius = self::EARTH_RADIUS): Point
     {
         $scale = $dist / $radius;
         $fai = $point->latitude * self::RADIAN;
@@ -135,6 +135,11 @@ class Spatial
         $end_lat = asin(sin($fai) * cos($scale) + cos($fai) * sin($scale) * cos($bear));
         $end_lng = $point->longitude + atan2(sin($bear) * sin($scale) * cos($fai), cos($scale) - sin($fai) * sin($end_lat)) / self::RADIAN;
         return $point->setLongitude(fmod($end_lng + 540, 360) - 180)->setLatitude($end_lat / self::RADIAN);
+    }
+
+    public function panning(Point $point, int $dist, int $bearing, float $radius = self::EARTH_RADIUS): Point
+    {
+        return static::move($point, $dist, $bearing, $radius);
     }
 
     /**
