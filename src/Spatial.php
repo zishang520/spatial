@@ -45,7 +45,7 @@ class Spatial
     /**
      * 计算P到line的距离。单位：米.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point 坐标
+     * @param Point $point P点坐标
      * @param LineString $lineString 线段
      * @return float 距离/M
      */
@@ -63,9 +63,9 @@ class Spatial
     }
 
     /**
-     * 计算线段上距离P1最近的点.
+     * 计算线段上距离P最近的点.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point 坐标
+     * @param Point $point P点坐标
      * @param LineString $lineString 只有2个点的线段
      * @return Point 最近的一个坐标
      */
@@ -88,6 +88,30 @@ class Spatial
         }
 
         return (clone $point)->setLongitude($longitude)->setLatitude($latitude);
+    }
+
+    /**
+     * 计算line上距离P最近的点.
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param Point $point P点坐标
+     * @param LineString $lineString 线段
+     * @return Point 最近的一个坐标
+     */
+    public static function closestOnLine(Point $point, LineString $lineString): Point
+    {
+        $out_point = null;
+        $initial = null;
+        $distance = INF;
+        foreach ($lineString->getIterator() as $_point) {
+            if (!is_null($initial)) {
+                if (($d = self::distance($point, $p = self::closestOnSegment($point, new LineString($initial, $_point)))) < $distance) {
+                    $distance = $d;
+                    $out_point = $p;
+                }
+            }
+            $initial = $_point;
+        }
+        return $out_point;
     }
 
     /**
@@ -159,10 +183,10 @@ class Spatial
     {
         $range = 180 / self::PI * $dist / $radius;
         return match ($direction) {
-            DirectionEnum::LEFT => $point->setLongitude($point->longitude - ($range / cos($point->latitude * self::RADIAN)))->setLatitude($point->latitude),
-            DirectionEnum::RIGHT => $point->setLongitude($point->longitude + ($range / cos($point->latitude * self::RADIAN)))->setLatitude($point->latitude),
-            DirectionEnum::UP => $point->setLongitude($point->longitude)->setLatitude($point->latitude + $range),
-            DirectionEnum::DOWN => $point->setLongitude($point->longitude)->setLatitude($point->latitude - $range),
+            DirectionEnum::LEFT => (clone $point)->setLongitude($point->longitude - ($range / cos($point->latitude * self::RADIAN)))->setLatitude($point->latitude),
+            DirectionEnum::RIGHT => (clone $point)->setLongitude($point->longitude + ($range / cos($point->latitude * self::RADIAN)))->setLatitude($point->latitude),
+            DirectionEnum::UP => (clone $point)->setLongitude($point->longitude)->setLatitude($point->latitude + $range),
+            DirectionEnum::DOWN => (clone $point)->setLongitude($point->longitude)->setLatitude($point->latitude - $range),
         };
     }
 
@@ -182,7 +206,7 @@ class Spatial
         $bear = fmod($bearing, 360) * self::RADIAN;
         $end_lat = asin(sin($fai) * cos($scale) + cos($fai) * sin($scale) * cos($bear));
         $end_lng = $point->longitude + atan2(sin($bear) * sin($scale) * cos($fai), cos($scale) - sin($fai) * sin($end_lat)) / self::RADIAN;
-        return $point->setLongitude(fmod($end_lng + 540, 360) - 180)->setLatitude($end_lat / self::RADIAN);
+        return (clone $point)->setLongitude(fmod($end_lng + 540, 360) - 180)->setLatitude($end_lat / self::RADIAN);
     }
 
     public static function panning(Point $point, int $dist, int $bearing, float $radius = self::EARTH_RADIUS): Point

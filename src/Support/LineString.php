@@ -4,6 +4,7 @@ namespace luoyy\Spatial\Support;
 
 use IteratorAggregate;
 use JsonSerializable;
+use LengthException;
 use luoyy\Spatial\Contracts\Point;
 use Traversable;
 
@@ -33,6 +34,9 @@ class LineString implements JsonSerializable, IteratorAggregate
 
     public function setPoints(Point ...$points): self
     {
+        if (count($points) < 2) {
+            throw new LengthException('LineString requires at least two points.');
+        }
         $this->points = $points;
         return $this;
     }
