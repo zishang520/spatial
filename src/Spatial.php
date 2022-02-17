@@ -75,7 +75,7 @@ class Spatial
         $point2 = $lineString->points[1];
         $longitude = $point2->longitude - $point1->longitude;
         $latitude = $point2->latitude - $point1->latitude;
-        $dot = $longitude == 0 && $point2 == 0 ? 0 : ($longitude * ($point->longitude - $point1->longitude) + $latitude * ($point->latitude - $point1->latitude)) / (($longitude * $longitude + $latitude * $latitude) ?: INF);
+        $dot = $longitude == 0 && $latitude == 0 ? 0 : ($longitude * ($point->longitude - $point1->longitude) + $latitude * ($point->latitude - $point1->latitude)) / ($longitude * $longitude + $latitude * $latitude);
         if ($dot <= 0) {
             $longitude = $point1->longitude;
             $latitude = $point1->latitude;
