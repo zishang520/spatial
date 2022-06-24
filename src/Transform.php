@@ -20,7 +20,7 @@ class Transform
 
     protected const EARTHS_LONG_RADIUS = 6378245.0;
 
-    protected const FLATNESS = 0.006693421622965823;
+    protected const FLATNESS = 0.00669342162296594323;
 
     /**
      * BD09转GCJ02.
@@ -92,10 +92,16 @@ class Transform
         if (!static::in_china($point)) {
             return new PointWGS84($point->longitude, $point->latitude);
         }
+        $out = new PointWGS84($point->longitude, $point->latitude);
 
-        $offsetPoint = self::offsetPoint($point);
+        $gcj02_point = self::WGS84_GCJ02($out);
+        [$dlng, $dlat] = [$gcj02_point->longitude - $point->longitude, $gcj02_point->latitude - $point->latitude];
+        while (abs($dlng) > 1e-7 || abs($dlat) > 1e-7) {
+            $gcj02_point = self::WGS84_GCJ02(new PointWGS84($out->longitude -= $dlng, $out->latitude -= $dlat));
+            [$dlng, $dlat] = [$gcj02_point->longitude - $point->longitude, $gcj02_point->latitude - $point->latitude];
+        }
 
-        return new PointWGS84($point->longitude - $offsetPoint->longitude, $point->latitude - $offsetPoint->latitude);
+        return $out;
     }
 
     /**
@@ -120,13 +126,16 @@ class Transform
 
     protected static function offsetPoint(ContractsPoint $point): ContractsPoint
     {
-        $dlng = static::transformLongitude(new class($point->longitude - 105.0, $point->latitude - 35.0) extends ContractsPoint {});
-        $dlat = static::transformLatitude(new class($point->longitude - 105.0, $point->latitude - 35.0) extends ContractsPoint {});
+        $dlng = static::transformLongitude(new class($point->longitude - 105.0, $point->latitude - 35.0) extends ContractsPoint {
+        });
+        $dlat = static::transformLatitude(new class($point->longitude - 105.0, $point->latitude - 35.0) extends ContractsPoint {
+        });
         $radlat = $point->latitude / 180.0 * self::PI;
         $magic = sin($radlat);
         $sqrtmagic = (float) bcsqrt($magic = 1 - self::FLATNESS * $magic * $magic, 30);
 
-        return new class($dlng * 180.0 / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI), $dlat * 180.0 / (self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS) / ($magic * $sqrtmagic) * self::PI)) extends ContractsPoint {};
+        return new class($dlng * 180.0 / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI), $dlat * 180.0 / (self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS) / ($magic * $sqrtmagic) * self::PI)) extends ContractsPoint {
+        };
     }
 
     protected static function transformLongitude(ContractsPoint $point): float
