@@ -14,13 +14,13 @@ use luoyy\Spatial\Support\PointWGS84;
  */
 class Transform
 {
-    protected const X_PI = 3.1415926535897932384626 * 3000.0 / 180.0;
+    protected const X_PI = 3.14159265358979324 * 3000.0 / 180.0;
 
     protected const PI = 3.1415926535897932384626;
 
     protected const EARTHS_LONG_RADIUS = 6378245.0;
 
-    protected const FLATNESS = 0.00669342162296594323;
+    protected const FLATNESS = 0.006693421622965823;
 
     /**
      * BD09转GCJ02.
@@ -31,7 +31,7 @@ class Transform
     {
         $longitude = $point->longitude - 0.0065;
         $latitude = $point->latitude - 0.006;
-        $postion = sqrt($longitude * $longitude + $latitude * $latitude) - 0.00002 * sin($latitude * self::X_PI);
+        $postion = (float) bcsqrt($longitude * $longitude + $latitude * $latitude, 30) - 0.00002 * sin($latitude * self::X_PI);
         $offset = atan2($latitude, $longitude) - 0.000003 * cos($longitude * self::X_PI);
         return new PointGCJ02($postion * cos($offset), $postion * sin($offset));
     }
@@ -77,7 +77,7 @@ class Transform
      */
     public static function GCJ02_BD09(PointGCJ02 $point): PointBD09
     {
-        $postion = sqrt($point->longitude * $point->longitude + $point->latitude * $point->latitude) + 0.00002 * sin($point->latitude * self::X_PI);
+        $postion = (float) bcsqrt($point->longitude * $point->longitude + $point->latitude * $point->latitude, 30) + 0.00002 * sin($point->latitude * self::X_PI);
         $offset = atan2($point->latitude, $point->longitude) + 0.000003 * cos($point->longitude * self::X_PI);
         return new PointBD09($postion * cos($offset) + 0.0065, $postion * sin($offset) + 0.006);
     }
@@ -124,17 +124,14 @@ class Transform
         $dlat = static::transformLatitude(new class($point->longitude - 105.0, $point->latitude - 35.0) extends ContractsPoint {});
         $radlat = $point->latitude / 180.0 * self::PI;
         $magic = sin($radlat);
-        $magic = 1 - self::FLATNESS * $magic * $magic;
-        $sqrtmagic = sqrt($magic);
-        $dlng = ($dlng * 180.0) / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI);
-        $dlat = ($dlat * 180.0) / (self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS) / ($magic * $sqrtmagic) * self::PI);
+        $sqrtmagic = (float) bcsqrt($magic = 1 - self::FLATNESS * $magic * $magic, 30);
 
-        return new class($dlng, $dlat) extends ContractsPoint {};
+        return new class($dlng * 180.0 / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI), $dlat * 180.0 / (self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS) / ($magic * $sqrtmagic) * self::PI)) extends ContractsPoint {};
     }
 
     protected static function transformLongitude(ContractsPoint $point): float
     {
-        $lng = 300.0 + $point->longitude + 2.0 * $point->latitude + 0.1 * $point->longitude * $point->longitude + 0.1 * $point->longitude * $point->latitude + 0.1 * sqrt(abs($point->longitude));
+        $lng = 300.0 + $point->longitude + 2.0 * $point->latitude + 0.1 * $point->longitude * $point->longitude + 0.1 * $point->longitude * $point->latitude + 0.1 * (float) bcsqrt(abs($point->longitude), 30);
         $lng += 2.0 * (20.0 * sin(6.0 * $point->longitude * self::PI) + 20.0 * sin(2.0 * $point->longitude * self::PI)) / 3.0;
         $lng += 2.0 * (20.0 * sin($point->longitude * self::PI) + 40.0 * sin($point->longitude / 3.0 * self::PI)) / 3.0;
         $lng += 2.0 * (150.0 * sin($point->longitude / 12.0 * self::PI) + 300.0 * sin($point->longitude / 30.0 * self::PI)) / 3.0;
@@ -143,7 +140,7 @@ class Transform
 
     protected static function transformLatitude(ContractsPoint $point): float
     {
-        $lat = 2.0 * $point->longitude - 100.0 + 3.0 * $point->latitude + 0.2 * $point->latitude * $point->latitude + 0.1 * $point->longitude * $point->latitude + 0.2 * sqrt(abs($point->longitude));
+        $lat = 2.0 * $point->longitude - 100.0 + 3.0 * $point->latitude + 0.2 * $point->latitude * $point->latitude + 0.1 * $point->longitude * $point->latitude + 0.2 * (float) bcsqrt(abs($point->longitude), 30);
         $lat += 2.0 * (20.0 * sin(6.0 * $point->longitude * self::PI) + 20.0 * sin(2.0 * $point->longitude * self::PI)) / 3.0;
         $lat += 2.0 * (20.0 * sin($point->latitude * self::PI) + 40.0 * sin($point->latitude / 3.0 * self::PI)) / 3.0;
         $lat += 2.0 * (160.0 * sin($point->latitude / 12.0 * self::PI) + 320.0 * sin($point->latitude * self::PI / 30.0)) / 3.0;

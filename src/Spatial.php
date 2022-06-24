@@ -39,7 +39,7 @@ class Spatial
      */
     public static function distance(Point $point1, Point $point2, float $radius = self::EARTH_RADIUS): float
     {
-        return 2 * $radius * asin(sqrt((1 - cos($point2->latitude * self::RADIAN - $point1->latitude * self::RADIAN) + (1 - cos($point2->longitude * self::RADIAN - $point1->longitude * self::RADIAN)) * cos($point2->latitude * self::RADIAN) * cos($point1->latitude * self::RADIAN)) / 2));
+        return 2 * $radius * asin((float) bcsqrt((1 - cos($point2->latitude * self::RADIAN - $point1->latitude * self::RADIAN) + (1 - cos($point2->longitude * self::RADIAN - $point1->longitude * self::RADIAN)) * cos($point2->latitude * self::RADIAN) * cos($point1->latitude * self::RADIAN)) / 2, 30));
     }
 
     /**
