@@ -66,15 +66,8 @@ class Transform
         if (!static::in_china($point)) {
             return new PointGCJ02($point->longitude, $point->latitude);
         }
-        $dlng = static::transformLongitude(new PointWGS84($point->longitude - 105.0, $point->latitude - 35.0));
-        $dlat = static::transformLatitude(new PointWGS84($point->longitude - 105.0, $point->latitude - 35.0));
-        $radlat = $point->latitude / 180.0 * self::PI;
-        $magic = sin($radlat);
-        $magic = 1 - self::FLATNESS * $magic * $magic;
-        $sqrtmagic = sqrt($magic);
-        $dlng = ($dlng * 180.0) / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI);
-        $dlat = ($dlat * 180.0) / (self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS) / ($magic * $sqrtmagic) * self::PI);
-        return new PointGCJ02($point->longitude + $dlng, $point->latitude + $dlat);
+        $offsetPoint = self::offsetPoint($point);
+        return new PointGCJ02($point->longitude + $offsetPoint->longitude, $point->latitude + $offsetPoint->latitude);
     }
 
     /**
@@ -99,15 +92,10 @@ class Transform
         if (!static::in_china($point)) {
             return new PointWGS84($point->longitude, $point->latitude);
         }
-        $dlng = static::transformLongitude(new PointGCJ02($point->longitude - 105.0, $point->latitude - 35.0));
-        $dlat = static::transformLatitude(new PointGCJ02($point->longitude - 105.0, $point->latitude - 35.0));
-        $radlat = $point->latitude / 180.0 * self::PI;
-        $magic = sin($radlat);
-        $magic = 1 - self::FLATNESS * $magic * $magic;
-        $sqrtmagic = sqrt($magic);
-        $dlng = ($dlng * 180.0) / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI);
-        $dlat = ($dlat * 180.0) / (self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS) / ($magic * $sqrtmagic) * self::PI);
-        return new PointWGS84($point->longitude - $dlng, $point->latitude - $dlat);
+
+        $offsetPoint = self::offsetPoint($point);
+
+        return new PointWGS84($point->longitude - $offsetPoint->longitude, $point->latitude - $offsetPoint->latitude);
     }
 
     /**
@@ -128,6 +116,20 @@ class Transform
             throw new InvalidArgumentException("Conversion type [{$from->name}] to [{$to->name}] is not supported, acceptable types: BD09, WGS84, GCJ02.");
         }
         return call_user_func([static::class, $method], $point);
+    }
+
+    protected static function offsetPoint(ContractsPoint $point): ContractsPoint
+    {
+        $dlng = static::transformLongitude(new class($point->longitude - 105.0, $point->latitude - 35.0) extends ContractsPoint {});
+        $dlat = static::transformLatitude(new class($point->longitude - 105.0, $point->latitude - 35.0) extends ContractsPoint {});
+        $radlat = $point->latitude / 180.0 * self::PI;
+        $magic = sin($radlat);
+        $magic = 1 - self::FLATNESS * $magic * $magic;
+        $sqrtmagic = sqrt($magic);
+        $dlng = ($dlng * 180.0) / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI);
+        $dlat = ($dlat * 180.0) / (self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS) / ($magic * $sqrtmagic) * self::PI);
+
+        return new class($dlng, $dlat) extends ContractsPoint {};
     }
 
     protected static function transformLongitude(ContractsPoint $point): float
