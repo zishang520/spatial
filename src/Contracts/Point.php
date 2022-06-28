@@ -67,7 +67,7 @@ abstract class Point implements JsonSerializable, Stringable
      */
     public static function make(float $longitude, float $latitude, ?bool $noAutofix = null): static
     {
-        return new static($longitude,  $latitude, $noAutofix);
+        return new static($longitude, $latitude, $noAutofix);
     }
 
     public function setLatitude(float $latitude): static
