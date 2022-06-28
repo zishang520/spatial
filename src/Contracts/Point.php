@@ -7,8 +7,9 @@ use luoyy\Spatial\Enums\PointEnum;
 use luoyy\Spatial\Spatial;
 use luoyy\Spatial\Transform;
 use RangeException;
+use Stringable;
 
-abstract class Point implements JsonSerializable
+abstract class Point implements JsonSerializable, Stringable
 {
     public const COORDINATE_SYSTEM = PointEnum::WGS84;
 
@@ -49,6 +50,11 @@ abstract class Point implements JsonSerializable
         $this->noAutofix = $noAutofix ?? $this->noAutofix;
         $this->setLongitude($longitude);
         $this->setLatitude($latitude);
+    }
+
+    public function __toString(): string
+    {
+        return "{$this->longitude},{$this->latitude}";
     }
 
     /**
