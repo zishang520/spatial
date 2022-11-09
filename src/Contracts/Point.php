@@ -3,10 +3,12 @@
 namespace luoyy\Spatial\Contracts;
 
 use JsonSerializable;
+use luoyy\Spatial\Spatial;
 use luoyy\Spatial\Transform;
 use RangeException;
+use Stringable;
 
-abstract class Point implements JsonSerializable
+abstract class Point implements JsonSerializable, Stringable
 {
     public const COORDINATE_SYSTEM = Transform::WGS84;
 
@@ -49,7 +51,25 @@ abstract class Point implements JsonSerializable
         $this->setLatitude($latitude);
     }
 
-    public function setLatitude(float $latitude): self
+    public function __toString(): string
+    {
+        return "{$this->longitude},{$this->latitude}";
+    }
+
+    /**
+     * 坐标点.
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param float $longitude 经度
+     * @param float $latitude 纬度
+     * @param bool|null $noAutofix noAutoFix表示是否自动将经度修正到 [-180,180] 区间内，缺省为false
+     * @throw RangeException
+     */
+    public static function make(float $longitude, float $latitude, ?bool $noAutofix = null): static
+    {
+        return new static($longitude, $latitude, $noAutofix);
+    }
+
+    public function setLatitude(float $latitude): static
     {
         if (!is_finite($latitude)) {
             throw new RangeException('Latitude must be a finite value.');
@@ -61,7 +81,7 @@ abstract class Point implements JsonSerializable
         return $this;
     }
 
-    public function setLongitude(float $longitude): self
+    public function setLongitude(float $longitude): static
     {
         if (!is_finite($longitude)) {
             throw new RangeException('Longitude must be a finite value.');
@@ -96,5 +116,10 @@ abstract class Point implements JsonSerializable
     public function transform(string $to): Point
     {
         return Transform::transform($this, $to);
+    }
+
+    public function move(int $dist, int $bearing, float $radius = Spatial::EARTH_RADIUS): static
+    {
+        return Spatial::move($this, $dist, $bearing, $radius);
     }
 }
