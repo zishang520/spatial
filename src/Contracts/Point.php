@@ -6,9 +6,8 @@ use JsonSerializable;
 use luoyy\Spatial\Spatial;
 use luoyy\Spatial\Transform;
 use RangeException;
-use Stringable;
 
-abstract class Point implements JsonSerializable, Stringable
+abstract class Point implements JsonSerializable
 {
     public const COORDINATE_SYSTEM = Transform::WGS84;
 
