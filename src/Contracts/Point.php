@@ -64,12 +64,12 @@ abstract class Point implements JsonSerializable, Stringable
      * @param bool|null $noAutofix noAutoFix表示是否自动将经度修正到 [-180,180] 区间内，缺省为false
      * @throw RangeException
      */
-    public static function make(float $longitude, float $latitude, ?bool $noAutofix = null): static
+    public static function make(float $longitude, float $latitude, ?bool $noAutofix = null)
     {
         return new static($longitude, $latitude, $noAutofix);
     }
 
-    public function setLatitude(float $latitude): static
+    public function setLatitude(float $latitude)
     {
         if (!is_finite($latitude)) {
             throw new RangeException('Latitude must be a finite value.');
@@ -81,7 +81,7 @@ abstract class Point implements JsonSerializable, Stringable
         return $this;
     }
 
-    public function setLongitude(float $longitude): static
+    public function setLongitude(float $longitude)
     {
         if (!is_finite($longitude)) {
             throw new RangeException('Longitude must be a finite value.');
@@ -118,7 +118,7 @@ abstract class Point implements JsonSerializable, Stringable
         return Transform::transform($this, $to);
     }
 
-    public function move(int $dist, int $bearing, float $radius = Spatial::EARTH_RADIUS): static
+    public function move(int $dist, int $bearing, float $radius = Spatial::EARTH_RADIUS)
     {
         return Spatial::move($this, $dist, $bearing, $radius);
     }
