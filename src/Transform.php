@@ -5,6 +5,7 @@ namespace luoyy\Spatial;
 use InvalidArgumentException;
 use luoyy\Spatial\Contracts\Point as ContractsPoint;
 use luoyy\Spatial\Enums\PointEnum;
+use luoyy\Spatial\Support\Point;
 use luoyy\Spatial\Support\PointBD09;
 use luoyy\Spatial\Support\PointGCJ02;
 use luoyy\Spatial\Support\PointWGS84;
@@ -119,23 +120,20 @@ class Transform
             return $point;
         }
         if (!method_exists(static::class, $method = sprintf('%s_%s', $from->name, $to->name))) {
-            throw new InvalidArgumentException("Conversion type [{$from->name}] to [{$to->name}] is not supported, acceptable types: BD09, WGS84, GCJ02.");
+            throw new \InvalidArgumentException("Conversion type [{$from->name}] to [{$to->name}] is not supported, acceptable types: BD09, WGS84, GCJ02.");
         }
         return call_user_func([static::class, $method], $point);
     }
 
     protected static function offsetPoint(ContractsPoint $point): ContractsPoint
     {
-        $dlng = static::transformLongitude(new class($point->longitude - 105.0, $point->latitude - 35.0) extends ContractsPoint {
-        });
-        $dlat = static::transformLatitude(new class($point->longitude - 105.0, $point->latitude - 35.0) extends ContractsPoint {
-        });
+        $dlng = static::transformLongitude(new Point($point->longitude - 105.0, $point->latitude - 35.0));
+        $dlat = static::transformLatitude(new Point($point->longitude - 105.0, $point->latitude - 35.0));
         $radlat = $point->latitude / 180.0 * self::PI;
         $magic = sin($radlat);
         $sqrtmagic = sqrt($magic = 1 - self::FLATNESS * $magic * $magic);
 
-        return new class($dlng * 180.0 / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI), $dlat * 180.0 / (self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS) / ($magic * $sqrtmagic) * self::PI)) extends ContractsPoint {
-        };
+        return new Point($dlng * 180.0 / (self::EARTHS_LONG_RADIUS / $sqrtmagic * cos($radlat) * self::PI), $dlat * 180.0 / (self::EARTHS_LONG_RADIUS * (1 - self::FLATNESS) / ($magic * $sqrtmagic) * self::PI));
     }
 
     protected static function transformLongitude(ContractsPoint $point): float

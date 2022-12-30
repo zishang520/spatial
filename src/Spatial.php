@@ -5,6 +5,7 @@ namespace luoyy\Spatial;
 use InvalidArgumentException;
 use luoyy\Spatial\Contracts\Point;
 use luoyy\Spatial\Enums\DirectionEnum;
+use luoyy\Spatial\Enums\LocationEnum;
 use luoyy\Spatial\Enums\PointEnum;
 use luoyy\Spatial\Support\LineString;
 use luoyy\Spatial\Support\Polygon;
@@ -156,7 +157,7 @@ class Spatial
     }
 
     /**
-     * 某一点范围内的最大最小点.
+     * 某一点范围内的最大最小点(起始点在中心).
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $point 坐标点
      * @param int $dist 距离/M
@@ -168,6 +169,27 @@ class Spatial
         $range = 180 / self::PI * $dist / $radius;
         $lngR = $range / cos($point->latitude * self::RADIAN);
         return new RangePoint($point->longitude + $lngR, $point->latitude + $range, $point->longitude - $lngR, $point->latitude - $range);
+    }
+
+    /**
+     * 某一点范围内的最大最小点（指定位置）.
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param Point $point 坐标点
+     * @param int $dist 距离/M
+     * @param LocationEnum $location 顶点位置
+     * @param float $radius 球半径
+     * @return RangePoint 范围坐标
+     */
+    public static function pointLocationRange(Point $point, int $dist, LocationEnum $location, float $radius = self::EARTH_RADIUS): RangePoint
+    {
+        $range = 180 / self::PI * $dist / $radius;
+        $lngR = $range / cos($point->latitude * self::RADIAN);
+        return match ($location) {
+            LocationEnum::NORTHWEST => new RangePoint($point->longitude + $lngR, $point->latitude, $point->longitude, $point->latitude - $range),
+            LocationEnum::NORTHEAST => new RangePoint($point->longitude, $point->latitude, $point->longitude - $lngR, $point->latitude - $range),
+            LocationEnum::SOUTHEAST => new RangePoint($point->longitude, $point->latitude + $range, $point->longitude - $lngR, $point->latitude),
+            LocationEnum::SOUTHWEST => new RangePoint($point->longitude + $lngR, $point->latitude + $range, $point->longitude, $point->latitude),
+        };
     }
 
     /**
