@@ -119,7 +119,7 @@ abstract class Point implements JsonSerializable, Stringable
         return Transform::transform($this, $to);
     }
 
-    public function move(int $dist, int $bearing, float $radius = Spatial::EARTH_RADIUS): static
+    public function move(float $dist, float $bearing, float $radius = Spatial::EARTH_RADIUS): static
     {
         return Spatial::move($this, $dist, $bearing, $radius);
     }

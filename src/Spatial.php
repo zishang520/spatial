@@ -160,11 +160,11 @@ class Spatial
      * 某一点范围内的最大最小点(起始点在中心).
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $point 坐标点
-     * @param int $dist 距离/M
+     * @param float $dist 距离/M
      * @param float $radius 球半径
      * @return RangePoint 范围坐标
      */
-    public static function pointRange(Point $point, int $dist, float $radius = self::EARTH_RADIUS): RangePoint
+    public static function pointRange(Point $point, float $dist, float $radius = self::EARTH_RADIUS): RangePoint
     {
         $range = 180 / self::PI * $dist / $radius;
         $lngR = $range / cos($point->latitude * self::RADIAN);
@@ -175,12 +175,12 @@ class Spatial
      * 某一点范围内的最大最小点（指定位置）.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $point 坐标点
-     * @param int $dist 距离/M
+     * @param float $dist 距离/M
      * @param LocationEnum $location 顶点位置
      * @param float $radius 球半径
      * @return RangePoint 范围坐标
      */
-    public static function pointLocationRange(Point $point, int $dist, LocationEnum $location, float $radius = self::EARTH_RADIUS): RangePoint
+    public static function pointLocationRange(Point $point, float $dist, LocationEnum $location, float $radius = self::EARTH_RADIUS): RangePoint
     {
         $range = 180 / self::PI * $dist / $radius;
         $lngR = $range / cos($point->latitude * self::RADIAN);
@@ -196,12 +196,12 @@ class Spatial
      * 平移一个点.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $point 坐标点
-     * @param int $dist 距离/M
+     * @param float $dist 距离/M
      * @param DirectionEnum $direction 方向 8 UP 2 DOWN 4 LEFT 6 RIGHT
      * @param float $radius 球半径
      * @return Point 移动后的坐标点
      */
-    public static function pointPanning(Point $point, int $dist, DirectionEnum $direction, float $radius = self::EARTH_RADIUS): Point
+    public static function pointPanning(Point $point, float $dist, DirectionEnum $direction, float $radius = self::EARTH_RADIUS): Point
     {
         $range = 180 / self::PI * $dist / $radius;
         return match ($direction) {
@@ -216,12 +216,12 @@ class Spatial
      * 移动一个点.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $point 坐标点
-     * @param int $dist 距离/M
-     * @param int $bearing 角度 [0-360]
+     * @param float $dist 距离/M
+     * @param float $bearing 角度 [0-360]
      * @param float $radius 球半径
      * @return Point 移动后的坐标点
      */
-    public static function move(Point $point, int $dist, int $bearing, float $radius = self::EARTH_RADIUS): Point
+    public static function move(Point $point, float $dist, float $bearing, float $radius = self::EARTH_RADIUS): Point
     {
         $scale = $dist / $radius;
         $fai = $point->latitude * self::RADIAN;
@@ -231,7 +231,7 @@ class Spatial
         return (clone $point)->setLongitude(fmod($end_lng + 540, 360) - 180)->setLatitude($end_lat / self::RADIAN);
     }
 
-    public static function panning(Point $point, int $dist, int $bearing, float $radius = self::EARTH_RADIUS): Point
+    public static function panning(Point $point, float $dist, float $bearing, float $radius = self::EARTH_RADIUS): Point
     {
         return static::move($point, $dist, $bearing, $radius);
     }
