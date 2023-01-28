@@ -2,12 +2,11 @@
 
 namespace luoyy\Spatial\Contracts;
 
-use JsonSerializable;
 use luoyy\Spatial\Spatial;
 use luoyy\Spatial\Transform;
 use RangeException;
 
-abstract class Point implements JsonSerializable
+abstract class Point implements \JsonSerializable
 {
     public const COORDINATE_SYSTEM = Transform::WGS84;
 
@@ -71,7 +70,7 @@ abstract class Point implements JsonSerializable
     public function setLatitude(float $latitude)
     {
         if (!is_finite($latitude)) {
-            throw new RangeException('Latitude must be a finite value.');
+            throw new \RangeException('Latitude must be a finite value.');
         }
         if (!$this->noAutofix) {
             $latitude = max(min($latitude, 90), -90);
@@ -83,7 +82,7 @@ abstract class Point implements JsonSerializable
     public function setLongitude(float $longitude)
     {
         if (!is_finite($longitude)) {
-            throw new RangeException('Longitude must be a finite value.');
+            throw new \RangeException('Longitude must be a finite value.');
         }
         if (!$this->noAutofix) {
             $longitude = fmod($longitude + 180, 360) + (-180 > $longitude || $longitude === 180 ? 180 : -180);
@@ -117,7 +116,7 @@ abstract class Point implements JsonSerializable
         return Transform::transform($this, $to);
     }
 
-    public function move(int $dist, int $bearing, float $radius = Spatial::EARTH_RADIUS)
+    public function move(float $dist, float $bearing, float $radius = Spatial::EARTH_RADIUS)
     {
         return Spatial::move($this, $dist, $bearing, $radius);
     }
