@@ -34,7 +34,7 @@ class Transform
         $latitude = $point->latitude - 0.006;
         $postion = sqrt($longitude * $longitude + $latitude * $latitude) - 0.00002 * sin($latitude * self::X_PI);
         $offset = atan2($latitude, $longitude) - 0.000003 * cos($longitude * self::X_PI);
-        return new PointGCJ02($postion * cos($offset), $postion * sin($offset));
+        return new PointGCJ02($postion * cos($offset), $postion * sin($offset), altitude: $point->altitude);
     }
 
     /**
@@ -65,10 +65,10 @@ class Transform
     public static function WGS84_GCJ02(PointWGS84 $point): PointGCJ02
     {
         if (!static::in_china($point)) {
-            return new PointGCJ02($point->longitude, $point->latitude);
+            return new PointGCJ02($point->longitude, $point->latitude, altitude: $point->altitude);
         }
         $offsetPoint = self::offsetPoint($point);
-        return new PointGCJ02($point->longitude + $offsetPoint->longitude, $point->latitude + $offsetPoint->latitude);
+        return new PointGCJ02($point->longitude + $offsetPoint->longitude, $point->latitude + $offsetPoint->latitude, altitude: $point->altitude);
     }
 
     /**
@@ -80,7 +80,7 @@ class Transform
     {
         $postion = sqrt($point->longitude * $point->longitude + $point->latitude * $point->latitude) + 0.00002 * sin($point->latitude * self::X_PI);
         $offset = atan2($point->latitude, $point->longitude) + 0.000003 * cos($point->longitude * self::X_PI);
-        return new PointBD09($postion * cos($offset) + 0.0065, $postion * sin($offset) + 0.006);
+        return new PointBD09($postion * cos($offset) + 0.0065, $postion * sin($offset) + 0.006, altitude: $point->altitude);
     }
 
     /**
@@ -90,10 +90,10 @@ class Transform
      */
     public static function GCJ02_WGS84(PointGCJ02 $point): PointWGS84
     {
+        $out = new PointWGS84($point->longitude, $point->latitude, altitude: $point->altitude);
         if (!static::in_china($point)) {
-            return new PointWGS84($point->longitude, $point->latitude);
+            return $out;
         }
-        $out = new PointWGS84($point->longitude, $point->latitude);
 
         $gcj02_point = self::WGS84_GCJ02($out);
         [$dlng, $dlat] = [$gcj02_point->longitude - $point->longitude, $gcj02_point->latitude - $point->latitude];

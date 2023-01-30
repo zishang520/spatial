@@ -31,7 +31,7 @@ class Spatial
     public const RADIAN = self::PI / 180;
 
     /**
-     * 计算两点之间的距离.
+     * 计算两点之间的距离（支持具有海拔高度的点计算）.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $point1 坐标1
      * @param Point $point2 坐标2
@@ -40,7 +40,19 @@ class Spatial
      */
     public static function distance(Point $point1, Point $point2, float $radius = self::EARTH_RADIUS): float
     {
-        return 2 * $radius * asin(sqrt((1 - cos($point2->latitude * self::RADIAN - $point1->latitude * self::RADIAN) + (1 - cos($point2->longitude * self::RADIAN - $point1->longitude * self::RADIAN)) * cos($point2->latitude * self::RADIAN) * cos($point1->latitude * self::RADIAN)) / 2));
+        $lat1 = $point1->latitude * self::RADIAN;
+        $lat2 = $point2->latitude * self::RADIAN;
+        $long1 = $point1->longitude * self::RADIAN;
+        $long2 = $point2->longitude * self::RADIAN;
+        $deltaLat = $lat2 - $lat1;
+        $deltaLong = $long2 - $long1;
+        $a = sin($deltaLat / 2) * sin($deltaLat / 2) + cos($lat1) * cos($lat2) * sin($deltaLong / 2) * sin($deltaLong / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $d = $radius * $c;
+        if (($h = $point2->altitude - $point1->altitude) == 0) {
+            return $d;
+        }
+        return sqrt($d * $d + $h * $h);
     }
 
     /**
@@ -76,19 +88,24 @@ class Spatial
         $point2 = $lineString->points[1];
         $longitude = $point2->longitude - $point1->longitude;
         $latitude = $point2->latitude - $point1->latitude;
-        $dot = $longitude == 0 && $latitude == 0 ? 0 : ($longitude * ($point->longitude - $point1->longitude) + $latitude * ($point->latitude - $point1->latitude)) / ($longitude * $longitude + $latitude * $latitude);
+        $altitude = $point2->altitude - $point1->altitude;
+        $denom = $longitude * $longitude + $latitude * $latitude + $altitude * $altitude;
+        $dot = $denom == 0 ? 0 : ($longitude * ($point->longitude - $point1->longitude) + $latitude * ($point->latitude - $point1->latitude) + $altitude * ($point->altitude - $point1->altitude)) / $denom;
         if ($dot <= 0) {
             $longitude = $point1->longitude;
             $latitude = $point1->latitude;
+            $altitude = $point1->altitude;
         } elseif (1 <= $dot) {
             $longitude = $point2->longitude;
             $latitude = $point2->latitude;
+            $altitude = $point2->altitude;
         } else {
             $longitude = $point1->longitude + $dot * $longitude;
             $latitude = $point1->latitude + $dot * $latitude;
+            $altitude = $point1->altitude + $dot * $altitude;
         }
 
-        return (clone $point)->setLongitude($longitude)->setLatitude($latitude);
+        return (clone $point)->setLongitude($longitude)->setLatitude($latitude)->setAltitude($altitude);
     }
 
     /**

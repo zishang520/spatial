@@ -67,4 +67,12 @@ class LineString implements \JsonSerializable, \IteratorAggregate
     {
         return $this->toArray();
     }
+
+    public function toGeometry(): array
+    {
+        return [
+            'type' => 'LineString',
+            'coordinates' => array_map(fn ($point) => $point->useArray($this->useArray)->toArray(), $this->points),
+        ];
+    }
 }

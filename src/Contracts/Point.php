@@ -2,14 +2,11 @@
 
 namespace luoyy\Spatial\Contracts;
 
-use JsonSerializable;
 use luoyy\Spatial\Enums\PointEnum;
 use luoyy\Spatial\Spatial;
 use luoyy\Spatial\Transform;
-use RangeException;
-use Stringable;
 
-abstract class Point implements JsonSerializable, Stringable
+abstract class Point implements \JsonSerializable, \Stringable
 {
     public const COORDINATE_SYSTEM = PointEnum::WGS84;
 
@@ -24,6 +21,12 @@ abstract class Point implements JsonSerializable, Stringable
      * @var float
      */
     public $latitude;
+
+    /**
+     * 海拔高度.
+     * @var float
+     */
+    public $altitude = 0;
 
     /**
      * 是否自动修正.
@@ -43,13 +46,14 @@ abstract class Point implements JsonSerializable, Stringable
      * @param float $longitude 经度
      * @param float $latitude 纬度
      * @param bool|null $noAutofix noAutoFix表示是否自动将经度修正到 [-180,180] 区间内，缺省为false
-     * @throw RangeException
+     * @throw \RangeException
      */
-    public function __construct(float $longitude, float $latitude, ?bool $noAutofix = null)
+    public function __construct(float $longitude, float $latitude, ?bool $noAutofix = null, float $altitude = 0)
     {
         $this->noAutofix = $noAutofix ?? $this->noAutofix;
         $this->setLongitude($longitude);
         $this->setLatitude($latitude);
+        $this->setLatitude($altitude);
     }
 
     public function __toString(): string
@@ -63,17 +67,17 @@ abstract class Point implements JsonSerializable, Stringable
      * @param float $longitude 经度
      * @param float $latitude 纬度
      * @param bool|null $noAutofix noAutoFix表示是否自动将经度修正到 [-180,180] 区间内，缺省为false
-     * @throw RangeException
+     * @throw \RangeException
      */
-    public static function make(float $longitude, float $latitude, ?bool $noAutofix = null): static
+    public static function make(float $longitude, float $latitude, ?bool $noAutofix = null, float $altitude = 0): static
     {
-        return new static($longitude, $latitude, $noAutofix);
+        return new static($longitude, $latitude, $noAutofix,  $altitude);
     }
 
     public function setLatitude(float $latitude): static
     {
         if (!is_finite($latitude)) {
-            throw new RangeException('Latitude must be a finite value.');
+            throw new \RangeException('Latitude must be a finite value.');
         }
         if (!$this->noAutofix) {
             $latitude = max(min($latitude, 90), -90);
@@ -85,12 +89,21 @@ abstract class Point implements JsonSerializable, Stringable
     public function setLongitude(float $longitude): static
     {
         if (!is_finite($longitude)) {
-            throw new RangeException('Longitude must be a finite value.');
+            throw new \RangeException('Longitude must be a finite value.');
         }
         if (!$this->noAutofix) {
             $longitude = fmod($longitude + 180, 360) + (-180 > $longitude || $longitude === 180 ? 180 : -180);
         }
         $this->longitude = $longitude;
+        return $this;
+    }
+
+    public function setAltitude(float $altitude): static
+    {
+        if (!is_finite($altitude)) {
+            throw new \RangeException('Altitude must be a finite value.');
+        }
+        $this->altitude = $altitude;
         return $this;
     }
 
@@ -112,6 +125,14 @@ abstract class Point implements JsonSerializable, Stringable
     public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    public function toGeometry(): array
+    {
+        return [
+            'type' => 'Point',
+            'coordinates' => [$this->longitude, $this->latitude],
+        ];
     }
 
     public function transform(PointEnum $to): Point

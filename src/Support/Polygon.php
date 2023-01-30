@@ -73,6 +73,14 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
         return $this->toArray();
     }
 
+    public function toGeometry(): array
+    {
+        return [
+            'type' => 'Polygon',
+            'coordinates' => array_map(fn ($point) => $point->useArray($this->useArray)->toArray(), $this->build()),
+        ];
+    }
+
     protected function build()
     {
         if (end($this->points) != $this->points[0]) {
