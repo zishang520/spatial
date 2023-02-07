@@ -53,7 +53,7 @@ abstract class Point implements \JsonSerializable, \Stringable
         $this->noAutofix = $noAutofix ?? $this->noAutofix;
         $this->setLongitude($longitude);
         $this->setLatitude($latitude);
-        $this->setLatitude($altitude);
+        $this->setAltitude($altitude);
     }
 
     public function __toString(): string
