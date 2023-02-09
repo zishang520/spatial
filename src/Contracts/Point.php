@@ -97,7 +97,7 @@ abstract class Point implements \JsonSerializable
         return $this;
     }
 
-    public function setAltitude(float $altitude): static
+    public function setAltitude(float $altitude)
     {
         if (!is_finite($altitude)) {
             throw new \RangeException('Altitude must be a finite value.');

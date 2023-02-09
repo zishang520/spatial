@@ -72,17 +72,17 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
         }, $this->build())];
     }
 
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
     public function toGeometry(): array
     {
         return [
             'type' => 'Polygon',
-            'coordinates' => array_map(fn ($point) => $point->useArray($this->useArray)->toArray(), $this->build()),
+            'coordinates' => array_map(function ($point) {return $point->useArray($this->useArray)->toArray(); }, $this->build()),
         ];
-    }
-
-    public function jsonSerialize(): array
-    {
-        return $this->toArray();
     }
 
     protected function build()

@@ -2,11 +2,9 @@
 
 namespace luoyy\Spatial\Support;
 
-use InvalidArgumentException;
-use JsonSerializable;
 use luoyy\Spatial\Transform;
 
-class RangePoint implements JsonSerializable
+class RangePoint implements \JsonSerializable
 {
     /**
      * 最大经度.
@@ -75,7 +73,7 @@ class RangePoint implements JsonSerializable
     public function getPolygon(string $to = Transform::WGS84): Polygon
     {
         if (!class_exists($class = sprintf('\%s\Point%s', __NAMESPACE__, $to), true)) {
-            throw new InvalidArgumentException(sprintf('Coordinate system "%s" does not exist.', $to));
+            throw new \InvalidArgumentException(sprintf('Coordinate system "%s" does not exist.', $to));
         }
         return new Polygon(new $class($this->minLongitude, $this->maxLatitude), new $class($this->maxLongitude, $this->maxLatitude), new $class($this->maxLongitude, $this->minLatitude), new $class($this->minLongitude, $this->minLatitude));
     }

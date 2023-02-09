@@ -178,7 +178,7 @@ class Spatial
     }
 
     /**
-     * 某一点范围内的最大最小点.
+     * 某一点范围内的最大最小点(起始点在中心).
      * @copyright (c) zishang520 All Rights Reserved
      * @param \luoyy\Spatial\Contracts\Point $point 坐标点
      * @param float $dist 距离/M
@@ -201,7 +201,7 @@ class Spatial
      * @param float $radius 球半径
      * @return Point 移动后的坐标点
      */
-    public static function pointPanning(Point $point, float $dist, float $direction, float $radius = self::EARTH_RADIUS): Point
+    public static function pointPanning(Point $point, float $dist, int $direction, float $radius = self::EARTH_RADIUS): Point
     {
         $range = 180 / self::PI * $dist / $radius;
         switch ($direction) {
@@ -213,6 +213,31 @@ class Spatial
                 return (clone $point)->setLongitude($point->longitude)->setLatitude($point->latitude + $range);
             case self::DIRECTION_DOWN:
                 return (clone $point)->setLongitude($point->longitude)->setLatitude($point->latitude - $range);
+        }
+    }
+
+    /**
+     * 某一点范围内的最大最小点（指定位置）.
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param Point $point 坐标点
+     * @param int $dist 距离/M
+     * @param int $location 0 左上 1 右上 2 右下 3 左下
+     * @param float $radius 球半径
+     * @return RangePoint 范围坐标
+     */
+    public static function pointLocationRange(Point $point, float $dist, int $location, float $radius = self::EARTH_RADIUS): RangePoint
+    {
+        $range = 180 / self::PI * $dist / $radius;
+        $lngR = $range / cos($point->latitude * self::RADIAN);
+        switch ($location) {
+            case 0:
+                return new RangePoint($point->longitude + $lngR, $point->latitude, $point->longitude, $point->latitude - $range);
+            case 1:
+                return new RangePoint($point->longitude, $point->latitude, $point->longitude - $lngR, $point->latitude - $range);
+            case 2:
+                return new RangePoint($point->longitude, $point->latitude + $range, $point->longitude - $lngR, $point->latitude);
+            case 3:
+                return new RangePoint($point->longitude + $lngR, $point->latitude + $range, $point->longitude, $point->latitude);
         }
     }
 
