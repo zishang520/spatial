@@ -2,7 +2,6 @@
 
 namespace luoyy\Spatial;
 
-use InvalidArgumentException;
 use luoyy\Spatial\Contracts\Point as ContractsPoint;
 use luoyy\Spatial\Enums\PointEnum;
 use luoyy\Spatial\Support\Point;
@@ -112,7 +111,7 @@ class Transform
      * @param string $from 来源坐标 [BD09, WGS84, GCJ02]
      * @param PointEnum $to 目标坐标 [BD09, WGS84, GCJ02]
      * @return \luoyy\Spatial\Contracts\Point 目标坐标
-     * @throw InvalidArgumentException
+     * @throw \InvalidArgumentException
      */
     public static function transform(ContractsPoint $point, PointEnum $to): ContractsPoint
     {
