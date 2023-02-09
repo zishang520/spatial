@@ -4,7 +4,6 @@ namespace luoyy\Spatial\Contracts;
 
 use luoyy\Spatial\Spatial;
 use luoyy\Spatial\Transform;
-use RangeException;
 
 abstract class Point implements \JsonSerializable
 {
@@ -21,6 +20,12 @@ abstract class Point implements \JsonSerializable
      * @var float
      */
     public $latitude;
+
+    /**
+     * 海拔高度.
+     * @var float
+     */
+    public $altitude = 0;
 
     /**
      * 是否自动修正.
@@ -40,13 +45,14 @@ abstract class Point implements \JsonSerializable
      * @param float $longitude 经度
      * @param float $latitude 纬度
      * @param bool|null $noAutofix noAutoFix表示是否自动将经度修正到 [-180,180] 区间内，缺省为false
-     * @throw RangeException
+     * @throw \RangeException
      */
-    public function __construct(float $longitude, float $latitude, ?bool $noAutofix = null)
+    public function __construct(float $longitude, float $latitude, ?bool $noAutofix = null, float $altitude = 0)
     {
         $this->noAutofix = $noAutofix ?? $this->noAutofix;
         $this->setLongitude($longitude);
         $this->setLatitude($latitude);
+        $this->setAltitude($altitude);
     }
 
     public function __toString(): string
@@ -60,9 +66,9 @@ abstract class Point implements \JsonSerializable
      * @param float $longitude 经度
      * @param float $latitude 纬度
      * @param bool|null $noAutofix noAutoFix表示是否自动将经度修正到 [-180,180] 区间内，缺省为false
-     * @throw RangeException
+     * @throw \RangeException
      */
-    public static function make(float $longitude, float $latitude, ?bool $noAutofix = null)
+    public static function make(float $longitude, float $latitude, ?bool $noAutofix = null, float $altitude = 0)
     {
         return new static($longitude, $latitude, $noAutofix);
     }
@@ -91,6 +97,15 @@ abstract class Point implements \JsonSerializable
         return $this;
     }
 
+    public function setAltitude(float $altitude): static
+    {
+        if (!is_finite($altitude)) {
+            throw new \RangeException('Altitude must be a finite value.');
+        }
+        $this->altitude = $altitude;
+        return $this;
+    }
+
     /**
      * 是否输出数组.
      * @copyright (c) zishang520 All Rights Reserved
@@ -109,6 +124,14 @@ abstract class Point implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    public function toGeometry(): array
+    {
+        return [
+            'type' => 'Point',
+            'coordinates' => [$this->longitude, $this->latitude],
+        ];
     }
 
     public function transform(string $to): Point

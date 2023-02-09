@@ -2,7 +2,6 @@
 
 namespace luoyy\Spatial;
 
-use InvalidArgumentException;
 use luoyy\Spatial\Contracts\Point;
 use luoyy\Spatial\Support\LineString;
 use luoyy\Spatial\Support\Polygon;
@@ -36,22 +35,34 @@ class Spatial
     public const DIRECTION_RIGHT = 6;
 
     /**
-     * 计算两点之间的距离.
+     * 计算两点之间的距离（支持具有海拔高度的点计算）.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point1 坐标1
-     * @param Point $point2 坐标2
+     * @param \luoyy\Spatial\Contracts\Point $point1 坐标1
+     * @param \luoyy\Spatial\Contracts\Point $point2 坐标2
      * @param float $radius 球半径
      * @return float 距离/M
      */
     public static function distance(Point $point1, Point $point2, float $radius = self::EARTH_RADIUS): float
     {
-        return 2 * $radius * asin(sqrt((1 - cos($point2->latitude * self::RADIAN - $point1->latitude * self::RADIAN) + (1 - cos($point2->longitude * self::RADIAN - $point1->longitude * self::RADIAN)) * cos($point2->latitude * self::RADIAN) * cos($point1->latitude * self::RADIAN)) / 2));
+        $lat1 = $point1->latitude * self::RADIAN;
+        $lat2 = $point2->latitude * self::RADIAN;
+        $long1 = $point1->longitude * self::RADIAN;
+        $long2 = $point2->longitude * self::RADIAN;
+        $deltaLat = $lat2 - $lat1;
+        $deltaLong = $long2 - $long1;
+        $a = sin($deltaLat / 2) * sin($deltaLat / 2) + cos($lat1) * cos($lat2) * sin($deltaLong / 2) * sin($deltaLong / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $d = $radius * $c;
+        if (($h = $point2->altitude - $point1->altitude) == 0) {
+            return $d;
+        }
+        return sqrt($d * $d + $h * $h);
     }
 
     /**
      * 计算P到line的距离。单位：米.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point P点坐标
+     * @param \luoyy\Spatial\Contracts\Point $point P点坐标
      * @param LineString $lineString 线段
      * @return float 距离/M
      */
@@ -71,7 +82,7 @@ class Spatial
     /**
      * 计算线段上距离P最近的点.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point P点坐标
+     * @param \luoyy\Spatial\Contracts\Point $point P点坐标
      * @param LineString $lineString 只有2个点的线段
      * @return Point 最近的一个坐标
      */
@@ -81,25 +92,30 @@ class Spatial
         $point2 = $lineString->points[1];
         $longitude = $point2->longitude - $point1->longitude;
         $latitude = $point2->latitude - $point1->latitude;
-        $dot = $longitude == 0 && $latitude == 0 ? 0 : ($longitude * ($point->longitude - $point1->longitude) + $latitude * ($point->latitude - $point1->latitude)) / ($longitude * $longitude + $latitude * $latitude);
+        $altitude = $point2->altitude - $point1->altitude;
+        $denom = $longitude * $longitude + $latitude * $latitude + $altitude * $altitude;
+        $dot = $denom == 0 ? 0 : ($longitude * ($point->longitude - $point1->longitude) + $latitude * ($point->latitude - $point1->latitude) + $altitude * ($point->altitude - $point1->altitude)) / $denom;
         if ($dot <= 0) {
             $longitude = $point1->longitude;
             $latitude = $point1->latitude;
+            $altitude = $point1->altitude;
         } elseif (1 <= $dot) {
             $longitude = $point2->longitude;
             $latitude = $point2->latitude;
+            $altitude = $point2->altitude;
         } else {
             $longitude = $point1->longitude + $dot * $longitude;
             $latitude = $point1->latitude + $dot * $latitude;
+            $altitude = $point1->altitude + $dot * $altitude;
         }
 
-        return (clone $point)->setLongitude($longitude)->setLatitude($latitude);
+        return (clone $point)->setLongitude($longitude)->setLatitude($latitude)->setAltitude($altitude);
     }
 
     /**
      * 计算line上距离P最近的点.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point P点坐标
+     * @param \luoyy\Spatial\Contracts\Point $point P点坐标
      * @param LineString $lineString 线段
      * @return Point 最近的一个坐标
      */
@@ -164,7 +180,7 @@ class Spatial
     /**
      * 某一点范围内的最大最小点.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point 坐标点
+     * @param \luoyy\Spatial\Contracts\Point $point 坐标点
      * @param float $dist 距离/M
      * @param float $radius 球半径
      * @return RangePoint 范围坐标
@@ -179,7 +195,7 @@ class Spatial
     /**
      * 平移一个点.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point 坐标点
+     * @param \luoyy\Spatial\Contracts\Point $point 坐标点
      * @param float $dist 距离/M
      * @param float $direction 方向 8 up 2 down 4 left 6 right
      * @param float $radius 球半径
@@ -203,7 +219,7 @@ class Spatial
     /**
      * 移动一个点.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point 坐标点
+     * @param \luoyy\Spatial\Contracts\Point $point 坐标点
      * @param float $dist 距离/M
      * @param float $bearing 角度 [0-360]
      * @param float $radius 球半径
@@ -227,8 +243,8 @@ class Spatial
     /**
      * 计算两点之间的角度.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point1 坐标1
-     * @param Point $point2 坐标2
+     * @param \luoyy\Spatial\Contracts\Point $point1 坐标1
+     * @param \luoyy\Spatial\Contracts\Point $point2 坐标2
      * @return float 角度
      */
     public static function bearing(Point $point1, Point $point2): float
@@ -243,13 +259,46 @@ class Spatial
     /**
      * 转换一个坐标.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param Point $point 原坐标
+     * @param \luoyy\Spatial\Contracts\Point $point 原坐标
      * @param string $to 目标坐标 [BD09, WGS84, GCJ02]
      * @return Point 目标坐标
-     * @throw InvalidArgumentException
+     * @throw \InvalidArgumentException
      */
     public static function transform(Point $point, string $to): Point
     {
         return Transform::transform($point, $to);
+    }
+
+    /**
+     * 根据 EGM96 获取平均海平面高度。
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param \luoyy\Spatial\Contracts\Point $point 原坐标(请设置altitude属性值)
+     * @return float 坐标平均海平面高度 M
+     */
+    public static function meanSeaLevel(Point $point): float
+    {
+        return EGM96Universal::meanSeaLevel($point);
+    }
+
+    /**
+     * 将 WGS84 的椭球相对高度转换为 EGM96 相对高度。
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param \luoyy\Spatial\Contracts\Point $point 原坐标(请设置altitude属性值)
+     * @return float 坐标 EGM96 相对高度 M
+     */
+    public static function ellipsoidToEgm96(Point $point): float
+    {
+        return EGM96Universal::ellipsoidToEgm96($point);
+    }
+
+    /**
+     * 将 EGM96 相对高度转换为 WGS84 椭球相对高度。
+     * @copyright (c) zishang520 All Rights Reserved
+     * @param \luoyy\Spatial\Contracts\Point $point 原坐标(请设置altitude属性值)
+     * @return float 坐标 WGS84 椭球相对高度 M
+     */
+    public static function egm96ToEllipsoid(Point $point): float
+    {
+        return EGM96Universal::egm96ToEllipsoid($point);
     }
 }

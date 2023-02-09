@@ -2,16 +2,13 @@
 
 namespace luoyy\Spatial\Support;
 
-use IteratorAggregate;
-use JsonSerializable;
 use LengthException;
 use luoyy\Spatial\Contracts\Point;
-use Traversable;
 
 /**
  * 多边形不用处理最后一个点与第一个点相对.
  */
-class Polygon implements JsonSerializable, IteratorAggregate
+class Polygon implements \JsonSerializable, \IteratorAggregate
 {
     /**
      * 坐标点.
@@ -39,7 +36,7 @@ class Polygon implements JsonSerializable, IteratorAggregate
     public function setPoints(Point ...$points): self
     {
         if (count($points) < 3) {
-            throw new LengthException('Polygon requires at least three points.');
+            throw new \LengthException('Polygon requires at least three points.');
         }
         $this->points = $points;
         return $this;
@@ -51,7 +48,7 @@ class Polygon implements JsonSerializable, IteratorAggregate
         return $this;
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
         yield from $this->build();
     }
@@ -73,6 +70,14 @@ class Polygon implements JsonSerializable, IteratorAggregate
         }, $this->build()) : ['points' => array_map(function ($point) {
             return $point->useArray($this->useArray)->toArray();
         }, $this->build())];
+    }
+
+    public function toGeometry(): array
+    {
+        return [
+            'type' => 'Polygon',
+            'coordinates' => array_map(fn ($point) => $point->useArray($this->useArray)->toArray(), $this->build()),
+        ];
     }
 
     public function jsonSerialize(): array
