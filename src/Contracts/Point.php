@@ -131,7 +131,7 @@ abstract class Point implements \JsonSerializable, \Stringable
     {
         return [
             'type' => 'Point',
-            'coordinates' => [$this->longitude, $this->latitude],
+            'coordinates' => $this->useArray(true)->toArray(),
         ];
     }
 

@@ -77,7 +77,7 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
     {
         return [
             'type' => 'Polygon',
-            'coordinates' => [array_map(fn ($point) => $point->useArray($this->useArray)->toArray(), $this->build())],
+            'coordinates' => [array_map(fn ($point) => $point->useArray(true)->toArray(), $this->build())],
         ];
     }
 
