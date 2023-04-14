@@ -12,15 +12,19 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
 {
     /**
      * 坐标点.
-     * @var Point[]
+     * @var array<Point>
      */
-    public $points;
+    public array $points;
 
     /**
      * 是否输出数组.
-     * @var bool
      */
-    protected $useArray = false;
+    protected bool $_useArray = false;
+
+    /**
+     * 是否输出高度.
+     */
+    protected bool $_useAltitude = false;
 
     /**
      * 多边形.
@@ -59,13 +63,27 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
      */
     public function useArray(bool $useArray = true)
     {
-        $this->useArray = $useArray;
+        $this->_useArray = $useArray;
+        return $this;
+    }
+
+    /**
+     * 是否输出高度.
+     * @copyright (c) zishang520 All Rights Reserved
+     */
+    public function useAltitude(bool $useAltitude = true)
+    {
+        $this->_useAltitude = $useAltitude;
         return $this;
     }
 
     public function toArray(): array
     {
-        return $this->useArray ? array_map(fn ($point) => $point->useArray($this->useArray)->toArray(), $this->build()) : ['points' => array_map(fn ($point) => $point->useArray($this->useArray)->toArray(), $this->build())];
+        $data = array_map(fn ($point) => $point->useArray($this->_useArray)->useAltitude($this->_useAltitude)->toArray(), $this->build());
+        if ($this->_useArray) {
+            return $data;
+        }
+        return ['points' => $data];
     }
 
     public function jsonSerialize(): array
@@ -77,7 +95,7 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
     {
         return [
             'type' => 'Polygon',
-            'coordinates' => [array_map(fn ($point) => $point->useArray(true)->toArray(), $this->build())],
+            'coordinates' => [array_map(fn ($point) => (clone $point)->useArray(true)->useAltitude($this->_useAltitude)->toArray(), $this->build())],
         ];
     }
 

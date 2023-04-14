@@ -8,15 +8,19 @@ class LineString implements \JsonSerializable, \IteratorAggregate
 {
     /**
      * 坐标点.
-     * @var Point[]
+     * @var array<Point>
      */
-    public $points;
+    public array $points;
 
     /**
      * 是否输出数组.
-     * @var bool
      */
-    protected $useArray = false;
+    protected bool $_useArray = false;
+
+    /**
+     * 是否输出高度.
+     */
+    protected bool $_useAltitude = false;
 
     /**
      * 线.
@@ -54,13 +58,27 @@ class LineString implements \JsonSerializable, \IteratorAggregate
      */
     public function useArray(bool $useArray = true)
     {
-        $this->useArray = $useArray;
+        $this->_useArray = $useArray;
+        return $this;
+    }
+
+    /**
+     * 是否输出高度.
+     * @copyright (c) zishang520 All Rights Reserved
+     */
+    public function useAltitude(bool $useAltitude = true)
+    {
+        $this->_useAltitude = $useAltitude;
         return $this;
     }
 
     public function toArray(): array
     {
-        return $this->useArray ? array_map(fn ($point) => $point->useArray($this->useArray)->toArray(), $this->points) : ['points' => array_map(fn ($point) => $point->useArray($this->useArray)->toArray(), $this->points)];
+        $data = array_map(fn ($point) => $point->useArray($this->_useArray)->useAltitude($this->_useAltitude)->toArray(), $this->points);
+        if ($this->_useArray) {
+            return $data;
+        }
+        return ['points' => $data];
     }
 
     public function jsonSerialize(): array
@@ -72,7 +90,7 @@ class LineString implements \JsonSerializable, \IteratorAggregate
     {
         return [
             'type' => 'LineString',
-            'coordinates' => array_map(fn ($point) => $point->useArray(true)->toArray(), $this->points),
+            'coordinates' => array_map(fn ($point) => (clone $point)->useArray(true)->useAltitude($this->_useAltitude)->toArray(), $this->points),
         ];
     }
 }

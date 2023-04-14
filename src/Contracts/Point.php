@@ -12,33 +12,33 @@ abstract class Point implements \JsonSerializable, \Stringable
 
     /**
      * 经度.
-     * @var float
      */
-    public $longitude;
+    public float $longitude;
 
     /**
      * 纬度.
-     * @var float
      */
-    public $latitude;
+    public float $latitude;
 
     /**
      * 海拔高度.
-     * @var float
      */
-    public $altitude = 0;
+    public float $altitude = 0;
 
     /**
      * 是否自动修正.
-     * @var bool
      */
-    protected $noAutofix = false;
+    protected bool $noAutofix = false;
 
     /**
      * 是否输出数组.
-     * @var bool
      */
-    protected $useArray = false;
+    protected bool $_useArray = false;
+
+    /**
+     * 是否输出高度.
+     */
+    protected bool $_useAltitude = false;
 
     /**
      * 坐标点.
@@ -58,7 +58,7 @@ abstract class Point implements \JsonSerializable, \Stringable
 
     public function __toString(): string
     {
-        return "{$this->longitude},{$this->latitude}";
+        return $this->_useAltitude ? "{$this->longitude},{$this->latitude},{$this->altitude}" : "{$this->longitude},{$this->latitude}";
     }
 
     /**
@@ -113,13 +113,30 @@ abstract class Point implements \JsonSerializable, \Stringable
      */
     public function useArray(bool $useArray = true)
     {
-        $this->useArray = $useArray;
+        $this->_useArray = $useArray;
+        return $this;
+    }
+
+    /**
+     * 是否输出高度.
+     * @copyright (c) zishang520 All Rights Reserved
+     */
+    public function useAltitude(bool $useAltitude = true)
+    {
+        $this->_useAltitude = $useAltitude;
         return $this;
     }
 
     public function toArray(): array
     {
-        return $this->useArray ? [$this->longitude, $this->latitude] : ['longitude' => $this->longitude, 'latitude' => $this->latitude];
+        $data = ['longitude' => $this->longitude, 'latitude' => $this->latitude];
+        if ($this->_useAltitude) {
+            $data['altitude'] = $this->altitude;
+        }
+        if ($this->_useArray) {
+            return array_values($data);
+        }
+        return $data;
     }
 
     public function jsonSerialize(): array
@@ -131,7 +148,7 @@ abstract class Point implements \JsonSerializable, \Stringable
     {
         return [
             'type' => 'Point',
-            'coordinates' => $this->useArray(true)->toArray(),
+            'coordinates' => (clone $this)->useArray(true)->useAltitude($this->_useAltitude)->toArray(),
         ];
     }
 

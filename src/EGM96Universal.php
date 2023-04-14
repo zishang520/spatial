@@ -17,6 +17,8 @@ class EGM96Universal
 
     public const NUM_COLS = 1440;
 
+    private const DATA_FILE = '.data.bin';
+
     private static $dt = null;
 
     /**
@@ -116,7 +118,7 @@ class EGM96Universal
     private static function data()
     {
         if (is_null(self::$dt)) {
-            self::$dt = fopen(__DIR__ . DIRECTORY_SEPARATOR . '.data.bin', 'r');
+            self::$dt = fopen(__DIR__ . DIRECTORY_SEPARATOR . self::DATA_FILE, 'r');
         }
         return self::$dt;
     }

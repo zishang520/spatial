@@ -2,34 +2,29 @@
 
 namespace luoyy\Spatial\Support;
 
-use JsonSerializable;
 use luoyy\Spatial\Enums\PointEnum;
 
-class RangePoint implements JsonSerializable
+class RangePoint implements \JsonSerializable
 {
     /**
      * 最大经度.
-     * @var float
      */
-    public $maxLongitude;
+    public float $maxLongitude;
 
     /**
      * 最大纬度.
-     * @var float
      */
-    public $maxLatitude;
+    public float $maxLatitude;
 
     /**
      * 最小经度.
-     * @var float
      */
-    public $minLongitude;
+    public float $minLongitude;
 
     /**
      * 最小纬度.
-     * @var float
      */
-    public $minLatitude;
+    public float $minLatitude;
 
     /**
      * 坐标点范围矩阵.
