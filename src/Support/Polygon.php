@@ -27,6 +27,11 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
     protected bool $_useAltitude = false;
 
     /**
+     * 是否自动闭合多边形.
+     */
+    protected bool $_autoClose = true;
+
+    /**
      * 多边形.
      * @copyright (c) zishang520 All Rights Reserved
      * @param Point $points 点
@@ -77,9 +82,18 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
         return $this;
     }
 
+    /**
+     * 设置是否自动闭合多边形.
+     */
+    public function autoClose(bool $autoClose = true): self
+    {
+        $this->_autoClose = $autoClose;
+        return $this;
+    }
+
     public function toArray(): array
     {
-        $data = array_map(fn ($point) => $point->useArray($this->_useArray)->useAltitude($this->_useAltitude)->toArray(), $this->build());
+        $data = array_map(fn($point) => $point->useArray($this->_useArray)->useAltitude($this->_useAltitude)->toArray(), $this->build());
         if ($this->_useArray) {
             return $data;
         }
@@ -95,13 +109,13 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
     {
         return [
             'type' => 'Polygon',
-            'coordinates' => [array_map(fn ($point) => (clone $point)->useArray(true)->useAltitude($this->_useAltitude)->toArray(), $this->build())],
+            'coordinates' => [array_map(fn($point) => (clone $point)->useArray(true)->useAltitude($this->_useAltitude)->toArray(), $this->build())],
         ];
     }
 
     protected function build()
     {
-        if (end($this->points) != $this->points[0]) {
+        if ($this->_autoClose && end($this->points) != $this->points[0]) {
             $this->addPoint($this->points[0]);
         }
         return $this->points;

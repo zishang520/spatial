@@ -63,7 +63,7 @@ class Transform
      */
     public static function WGS84_GCJ02(PointWGS84 $point): PointGCJ02
     {
-        if (!static::in_china($point)) {
+        if (!static::inChina($point)) {
             return new PointGCJ02($point->longitude, $point->latitude, altitude: $point->altitude);
         }
         $offsetPoint = self::offsetPoint($point);
@@ -90,7 +90,7 @@ class Transform
     public static function GCJ02_WGS84(PointGCJ02 $point): PointWGS84
     {
         $out = new PointWGS84($point->longitude, $point->latitude, altitude: $point->altitude);
-        if (!static::in_china($point)) {
+        if (!static::inChina($point)) {
             return $out;
         }
 
@@ -119,7 +119,7 @@ class Transform
             return $point;
         }
         if (!method_exists(static::class, $method = sprintf('%s_%s', $from->name, $to->name))) {
-            throw new \InvalidArgumentException("Conversion type [{$from->name}] to [{$to->name}] is not supported, acceptable types: BD09, WGS84, GCJ02.");
+            throw new \InvalidArgumentException("Conversion type [{$from->name}] to [{$to->name}] is not supported. Supported types: BD09, WGS84, GCJ02.");
         }
         return call_user_func([static::class, $method], $point);
     }
@@ -153,7 +153,7 @@ class Transform
         return $lat;
     }
 
-    protected static function in_china(ContractsPoint $point): bool
+    protected static function inChina(ContractsPoint $point): bool
     {
         return $point->longitude >= 72.004 && $point->longitude <= 137.8347 && $point->latitude >= 0.8293 && $point->latitude <= 55.8271;
     }
