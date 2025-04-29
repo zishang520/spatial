@@ -140,9 +140,9 @@ class Polygon implements \JsonSerializable, \IteratorAggregate
     protected function build(): array
     {
         $lastIdx = array_key_last($this->points);
-        if ($this->options['_useAutoClose'] && $this->points[$lastIdx] !== $this->points[0]) {
+        if ($this->options['_useAutoClose'] && $this->points[$lastIdx] != $this->points[0]) {
             $this->addPoint($this->points[0]);
-        } elseif (!$this->options['_useAutoClose'] && $this->points[$lastIdx] === $this->points[0]) {
+        } elseif (!$this->options['_useAutoClose'] && $this->points[$lastIdx] == $this->points[0]) {
             array_pop($this->points);
         }
         return $this->points;

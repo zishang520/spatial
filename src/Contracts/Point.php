@@ -92,7 +92,7 @@ abstract class Point implements \JsonSerializable, \Stringable
             throw new \RangeException('Longitude must be a finite value.');
         }
         if (!$this->noAutofix) {
-            $longitude = fmod($longitude + 180, 360) + (-180 > $longitude || $longitude === 180 ? 180 : -180);
+            $longitude = fmod($longitude + 180, 360) + (-180 > $longitude || $longitude == 180 ? 180 : -180);
         }
         $this->longitude = $longitude;
         return $this;
