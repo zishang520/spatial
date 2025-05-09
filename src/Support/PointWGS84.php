@@ -2,10 +2,16 @@
 
 namespace luoyy\Spatial\Support;
 
-use luoyy\Spatial\Contracts\Point as ContractsPoint;
-use luoyy\Spatial\Enums\PointEnum;
+use luoyy\Spatial\Enums\CoordinateSystemEnum;
 
-class PointWGS84 extends ContractsPoint
+/**
+ * WGS84 坐标系点。
+ * 继承自 Point，构造时自动指定 WGS84 坐标系。
+ */
+class PointWGS84 extends Point
 {
-    public const COORDINATE_SYSTEM = PointEnum::WGS84;
+    public function getCoordinateSystem(): CoordinateSystemEnum
+    {
+        return CoordinateSystemEnum::WGS84;
+    }
 }

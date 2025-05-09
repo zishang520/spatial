@@ -2,10 +2,12 @@
 
 namespace luoyy\Spatial;
 
-use luoyy\Spatial\Contracts\Point as ContractsPoint;
+use luoyy\Spatial\Contracts\PointInterface;
 
 /**
- * 根据EGM96模型进行高程计算.
+ * EGM96 高程模型工具类。
+ *
+ * 提供基于 EGM96 模型的平均海平面高程、椭球高与大地高互转等功能。
  */
 class EGM96Universal
 {
@@ -23,17 +25,18 @@ class EGM96Universal
 
     /**
      * 根据 EGM96 获取平均海平面高度。
-     * @copyright (c) zishang520 All Rights Reserved
-     * @param \luoyy\Spatial\Contracts\Point $point 原坐标(请设置altitude属性值)
-     * @return float 坐标平均海平面高度 M
+     *
+     * @param PointInterface $point 原始坐标（请设置 altitude 属性值）
+     * @return float 平均海平面高度（米）
+     * @throws \RangeException 纬度超出范围
      */
-    public static function meanSeaLevel(ContractsPoint $point): float
+    public static function meanSeaLevel(PointInterface $point): float
     {
-        $lat = self::normalizeRadians($point->latitude * self::RADIAN);
+        $lat = self::normalizeRadians($point->getLatitude() * self::RADIAN);
         if ($lat > M_PI || $lat < -M_PI) {
             throw new \RangeException('Invalid latitude.');
         }
-        $lon = self::normalizeRadians($point->longitude * self::RADIAN);
+        $lon = self::normalizeRadians($point->getLongitude() * self::RADIAN);
 
         $topRow = floor(((M_PI / 2) - $lat) / self::INTERVAL);
         $topRow = $topRow === self::NUM_ROWS - 1 ? $topRow - 1 : $topRow;
@@ -57,25 +60,25 @@ class EGM96Universal
     }
 
     /**
-     * 将 WGS84 的椭球相对高度转换为 EGM96 相对高度。
-     * @copyright (c) zishang520 All Rights Reserved
-     * @param \luoyy\Spatial\Contracts\Point $point 原坐标(请设置altitude属性值)
-     * @return float 坐标 EGM96 相对高度 M
+     * 将 WGS84 椭球高转换为 EGM96 高程。
+     *
+     * @param PointInterface $point 原始坐标（请设置 altitude 属性值）
+     * @return float EGM96 高程（米）
      */
-    public static function ellipsoidToEgm96(ContractsPoint $point): float
+    public static function ellipsoidToEgm96(PointInterface $point): float
     {
-        return $point->altitude - self::meanSeaLevel($point);
+        return $point->getAltitude() - self::meanSeaLevel($point);
     }
 
     /**
-     * 将 EGM96 相对高度转换为 WGS84 椭球相对高度。
-     * @copyright (c) zishang520 All Rights Reserved
-     * @param \luoyy\Spatial\Contracts\Point $point 原坐标(请设置altitude属性值)
-     * @return float 坐标 WGS84 椭球相对高度 M
+     * 将 EGM96 高程转换为 WGS84 椭球高。
+     *
+     * @param PointInterface $point 原始坐标（请设置 altitude 属性值）
+     * @return float WGS84 椭球高（米）
      */
-    public static function egm96ToEllipsoid(ContractsPoint $point): float
+    public static function egm96ToEllipsoid(PointInterface $point): float
     {
-        return $point->altitude + self::meanSeaLevel($point);
+        return $point->getAltitude() + self::meanSeaLevel($point);
     }
 
     private static function bilinearInterpolation(float $topLeft, float $bottomLeft, float $bottomRight, float $topRight, float $x, float $y): float

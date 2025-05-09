@@ -2,10 +2,16 @@
 
 namespace luoyy\Spatial\Support;
 
-use luoyy\Spatial\Contracts\Point as ContractsPoint;
-use luoyy\Spatial\Enums\PointEnum;
+use luoyy\Spatial\Enums\CoordinateSystemEnum;
 
-class PointGCJ02 extends ContractsPoint
+/**
+ * GCJ02 坐标系点。
+ * 继承自 GeometryPoint，构造时自动指定 GCJ02 坐标系。
+ */
+class PointGCJ02 extends Point
 {
-    public const COORDINATE_SYSTEM = PointEnum::GCJ02;
+    public function getCoordinateSystem(): CoordinateSystemEnum
+    {
+        return CoordinateSystemEnum::GCJ02;
+    }
 }
