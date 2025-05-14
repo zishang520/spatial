@@ -28,7 +28,7 @@ class MultiLineString extends Geometry
     {
         $this->coordinates = array_map(
             static function ($lineString) {
-                if (!$lineString instanceof LineString) {
+                if (! $lineString instanceof LineString) {
                     $lineString = new LineString($lineString);
                 }
                 return $lineString->getCoordinates();

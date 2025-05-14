@@ -105,7 +105,7 @@ class WktAdapter
             $parts = explode(';', $wkt, 2);
             $wkt = $parts[1] ?? '';
         }
-        if (!preg_match('/^(\w+)\s*\((.*)\)$/is', $wkt, $matches)) {
+        if (! preg_match('/^(\w+)\s*\((.*)\)$/is', $wkt, $matches)) {
             throw new \InvalidArgumentException('Invalid WKT: ' . $wkt);
         }
         $type = strtoupper($matches[1]);

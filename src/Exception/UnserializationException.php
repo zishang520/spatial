@@ -23,7 +23,6 @@ class UnserializationException extends RuntimeException
      * @param string $context 上下文描述
      * @param mixed $value 实际值
      * @param string $expectedType 期望类型
-     * @return self
      */
     public static function invalidValue(string $context, $value, string $expectedType): self
     {
@@ -42,7 +41,6 @@ class UnserializationException extends RuntimeException
      * @param string $property 属性名
      * @param mixed $value 实际值
      * @param string $expectedType 期望类型
-     * @return self
      */
     public static function invalidProperty(string $context, string $property, $value, string $expectedType): self
     {
@@ -61,7 +59,6 @@ class UnserializationException extends RuntimeException
      * @param string $context 上下文描述
      * @param string $property 属性名
      * @param string $expectedType 期望类型
-     * @return self
      */
     public static function missingProperty(string $context, string $property, string $expectedType): self
     {
@@ -78,7 +75,6 @@ class UnserializationException extends RuntimeException
      *
      * @param string $context 上下文描述
      * @param string $value 类型值
-     * @return self
      */
     public static function unsupportedType(string $context, string $value): self
     {

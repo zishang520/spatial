@@ -117,7 +117,7 @@ class KmlAdapter
     public static function parse(string $kml)
     {
         $xml = simplexml_load_string($kml);
-        if (!$xml) {
+        if (! $xml) {
             throw new \InvalidArgumentException('Invalid KML');
         }
         $ns = $xml->getNamespaces(true);

@@ -54,7 +54,6 @@ class Feature extends GeoJson
 
     /**
      * 获取类型。
-     * @return TypeEnum
      */
     public function getType(): TypeEnum
     {
@@ -63,7 +62,6 @@ class Feature extends GeoJson
 
     /**
      * 获取该要素的 Geometry 对象。
-     * @return Geometry|null
      */
     public function getGeometry(): ?Geometry
     {
@@ -72,7 +70,6 @@ class Feature extends GeoJson
 
     /**
      * 获取该要素的唯一标识。
-     * @return int|string|null
      */
     public function getId(): int|string|null
     {
@@ -81,7 +78,6 @@ class Feature extends GeoJson
 
     /**
      * 获取该要素的属性。
-     * @return array|null
      */
     public function getProperties(): ?array
     {
@@ -90,7 +86,6 @@ class Feature extends GeoJson
 
     /**
      * 序列化为 GeoJSON 数组。
-     * @return array
      */
     public function jsonSerialize(): array
     {

@@ -284,7 +284,7 @@ class Transform
      */
     public static function outChina(PointInterface $point): bool
     {
-        return !($point->getLongitude() >= 72.004 && $point->getLongitude() <= 137.8347 && $point->getLatitude() >= 0.8293 && $point->getLatitude() <= 55.8271);
+        return ! ($point->getLongitude() >= 72.004 && $point->getLongitude() <= 137.8347 && $point->getLatitude() >= 0.8293 && $point->getLatitude() <= 55.8271);
     }
 
     /**
@@ -300,7 +300,7 @@ class Transform
         if (($from = $point->getCoordinateSystem()) === $to) {
             return $point;
         }
-        if (!method_exists(static::class, $method = sprintf('%s_%s', $from->name, $to->name))) {
+        if (! method_exists(static::class, $method = sprintf('%s_%s', $from->name, $to->name))) {
             throw new \InvalidArgumentException("Conversion type [{$from->name}] to [{$to->name}] is not supported. Supported types: BD09, WGS84, GCJ02.");
         }
         return call_user_func([static::class, $method], $point);

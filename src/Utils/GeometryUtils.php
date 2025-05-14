@@ -22,7 +22,7 @@ class GeometryUtils
     {
         $result = [];
         foreach ($linearRings as $linearRing) {
-            if (!$linearRing instanceof LinearRing) {
+            if (! $linearRing instanceof LinearRing) {
                 $linearRing = new LinearRing($linearRing);
             }
             $result[] = $linearRing->getCoordinates();
@@ -40,7 +40,7 @@ class GeometryUtils
     {
         $result = [];
         foreach ($polygons as $polygon) {
-            if (!$polygon instanceof Polygon) {
+            if (! $polygon instanceof Polygon) {
                 $polygon = new Polygon($polygon);
             }
             $result[] = $polygon->getCoordinates();

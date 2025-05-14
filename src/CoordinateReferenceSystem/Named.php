@@ -30,7 +30,6 @@ class Named extends CoordinateReferenceSystem
     /**
      * 获取类型。
      *
-     * @return string
      */
     public function getType(): string
     {
@@ -41,18 +40,17 @@ class Named extends CoordinateReferenceSystem
      * 工厂方法：通过属性反序列化 Named CRS 对象。
      *
      * @param array|object $properties
-     * @return self
      * @throws UnserializationException
      */
     protected static function jsonUnserializeFromProperties($properties): self
     {
-        if (!is_array($properties) && !is_object($properties)) {
+        if (! is_array($properties) && ! is_object($properties)) {
             throw UnserializationException::invalidProperty('Named CRS', 'properties', $properties, 'array or object');
         }
 
         $properties = new ArrayObject($properties);
 
-        if (!$properties->offsetExists('name')) {
+        if (! $properties->offsetExists('name')) {
             throw UnserializationException::missingProperty('Named CRS', 'properties.name', 'string');
         }
 

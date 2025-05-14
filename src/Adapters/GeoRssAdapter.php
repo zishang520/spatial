@@ -98,7 +98,7 @@ class GeoRssAdapter
     public static function parse(string $georss)
     {
         $xml = simplexml_load_string($georss);
-        if (!$xml) {
+        if (! $xml) {
             throw new \InvalidArgumentException('Invalid GeoRSS');
         }
         // 支持带namespace的标签

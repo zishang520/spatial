@@ -58,7 +58,6 @@ class RangePoint implements \JsonSerializable
      * 静态工厂方法：通过数组创建 RangePoint。
      *
      * @param array $data 包含 maxLongitude、maxLatitude、minLongitude、minLatitude、altitude 的数组
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -96,7 +95,6 @@ class RangePoint implements \JsonSerializable
     /**
      * 转为数组。
      *
-     * @return array
      */
     public function toArray(): array
     {
@@ -112,7 +110,6 @@ class RangePoint implements \JsonSerializable
     /**
      * 实现 JsonSerializable 接口，序列化为数组。
      *
-     * @return array
      */
     public function jsonSerialize(): array
     {

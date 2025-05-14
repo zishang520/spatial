@@ -55,7 +55,6 @@ abstract class Geometry extends GeoJson
     /**
      * 序列化为 GeoJSON 数组。
      *
-     * @return array
      */
     public function jsonSerialize(): array
     {

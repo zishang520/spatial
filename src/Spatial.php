@@ -85,7 +85,7 @@ class Spatial
         $distance = INF;
         $initial = null;
         foreach ($lineString->getCoordinates() as $_point) {
-            if (!is_null($initial)) {
+            if (! is_null($initial)) {
                 $distance = min($distance, self::distance($point, self::closestOnSegment($point, new LineString([$initial, $_point]))));
             }
             $initial = $_point;
@@ -149,7 +149,7 @@ class Spatial
         $initial = null;
         $distance = INF;
         foreach ($lineString->getCoordinates() as $_point) {
-            if (!is_null($initial)) {
+            if (! is_null($initial)) {
                 if (($d = self::distance($point, $p = self::closestOnSegment($point, new LineString([$initial, $_point])))) < $distance) {
                     $distance = $d;
                     $out_point = $p;
@@ -172,7 +172,7 @@ class Spatial
         $initial = null;
         $result = 0.0;
         foreach ($lineString->getCoordinates() as $point) {
-            if (!is_null($initial)) {
+            if (! is_null($initial)) {
                 $result += self::distance(new PointWGS84($initial), new PointWGS84($point), $radius);
             }
             $initial = $point;
@@ -194,7 +194,7 @@ class Spatial
         $result = 0.0;
         foreach ($polygon->getCoordinates() as $lineStrings) {
             foreach ($lineStrings as $point) {
-                if (!is_null($initial)) {
+                if (! is_null($initial)) {
                     $result += ($initial[0] * $i * cos($initial[1] * self::RADIAN) * $point[1] * $i - $point[0] * $i * cos($point[1] * self::RADIAN) * $initial[1] * $i);
                 }
                 $initial = $point;

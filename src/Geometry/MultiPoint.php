@@ -26,7 +26,7 @@ class MultiPoint extends Geometry
      */
     public function __construct(array $positions, CoordinateReferenceSystem|BoundingBox ...$args)
     {
-        $this->coordinates = array_map(static fn($point) => ((!$point instanceof Point) ? (new Point($point)) : $point)->getCoordinates(), $positions);
+        $this->coordinates = array_map(static fn($point) => ((! $point instanceof Point) ? (new Point($point)) : $point)->getCoordinates(), $positions);
         $this->setOptionalConstructorArgs($args);
     }
 

@@ -29,7 +29,7 @@ abstract class AbstractCollection extends GeoJson implements Countable, Iterator
     public function __construct(array $items, string $itemClass)
     {
         foreach ($items as $item) {
-            if (!$item instanceof $itemClass) {
+            if (! $item instanceof $itemClass) {
                 throw new \InvalidArgumentException(static::class . " may only contain {$itemClass} objects");
             }
         }

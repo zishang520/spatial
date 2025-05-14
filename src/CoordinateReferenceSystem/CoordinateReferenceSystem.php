@@ -35,7 +35,6 @@ abstract class CoordinateReferenceSystem implements JsonSerializable, JsonUnseri
     /**
      * 获取 CRS 属性。
      *
-     * @return array
      */
     public function getProperties(): array
     {
@@ -45,14 +44,12 @@ abstract class CoordinateReferenceSystem implements JsonSerializable, JsonUnseri
     /**
      * 获取 CRS 类型。
      *
-     * @return string
      */
     abstract public function getType(): string;
 
     /**
      * 序列化为 GeoJSON 数组。
      *
-     * @return array
      */
     public function jsonSerialize(): array
     {
@@ -66,22 +63,21 @@ abstract class CoordinateReferenceSystem implements JsonSerializable, JsonUnseri
      * 反序列化 CRS。
      *
      * @param array|object $json
-     * @return static
      * @throws \luoyy\Spatial\Exception\UnserializationException
      */
     final public static function jsonUnserialize($json): static
     {
-        if (!is_array($json) && !is_object($json)) {
+        if (! is_array($json) && ! is_object($json)) {
             throw UnserializationException::invalidValue('CRS', $json, 'array or object');
         }
 
         $json = new ArrayObject($json);
 
-        if (!$json->offsetExists('type')) {
+        if (! $json->offsetExists('type')) {
             throw UnserializationException::missingProperty('CRS', 'type', 'string');
         }
 
-        if (!$json->offsetExists('properties')) {
+        if (! $json->offsetExists('properties')) {
             throw UnserializationException::missingProperty('CRS', 'properties', 'array or object');
         }
 
@@ -103,7 +99,6 @@ abstract class CoordinateReferenceSystem implements JsonSerializable, JsonUnseri
      * 工厂方法：通过属性反序列化 CRS。
      *
      * @param array|object $properties
-     * @return CoordinateReferenceSystem
      * @throws \BadMethodCallException
      */
     protected static function jsonUnserializeFromProperties($properties): CoordinateReferenceSystem

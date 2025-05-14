@@ -4,7 +4,6 @@ return (new PhpCsFixer\Config())
     ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRules([
         '@PSR12' => true,
-        '@PSR12' => true,
         '@DoctrineAnnotation' => true,
         'use_arrow_functions' => true,
         'yoda_style' => [
@@ -16,9 +15,12 @@ return (new PhpCsFixer\Config())
         'encoding' => true,
         'phpdoc_no_package' => false,
         'phpdoc_separation' => false,
-        'binary_operator_spaces' => true,
-        'function_typehint_space' => true,
-        'cast_spaces' => true,
+        'phpdoc_summary' => true,
+        'no_superfluous_phpdoc_tags' => true, // 移除多余的 PHPDoc 标签
+        'phpdoc_order' => ['order' => ['param', 'return', 'throws']],
+        'binary_operator_spaces' => ['default' => 'single_space'],
+        'type_declaration_spaces' => true,
+        'cast_spaces' => ['space' => 'single'],
         'concat_space' => [
             'spacing' => 'one',
         ],
@@ -28,20 +30,22 @@ return (new PhpCsFixer\Config())
         'backtick_to_shell_exec' => true,
         'no_alias_language_construct_call' => true,
         'no_multiline_whitespace_around_double_arrow' => true,
-        'no_trailing_comma_in_singleline_array' => true,
+        'no_trailing_comma_in_singleline' => true,
         'no_whitespace_before_comma_in_array' => true,
-        'whitespace_after_comma_in_array' => true,
+        'whitespace_after_comma_in_array' => ['ensure_single_space' => true],
         'trim_array_spaces' => true,
         'elseif' => true,
         'blank_line_after_opening_tag' => false,
         'array_indentation' => true,
         'method_chaining_indentation' => true,
-        'braces' => [
-            'allow_single_line_closure' => true,
-            'allow_single_line_anonymous_class_with_empty_body' => true,
-            'position_after_functions_and_oop_constructs' => 'next',
-            'position_after_control_structures' => 'same',
-            'position_after_anonymous_constructs' => 'same',
+        'braces_position' => [
+            'control_structures_opening_brace' => 'same_line',
+            'functions_opening_brace' => 'next_line_unless_newline_at_signature_end', // 对应 'position_after_functions_and_oop_constructs' => 'next'
+            'classes_opening_brace' => 'next_line_unless_newline_at_signature_end', // 对应 'position_after_functions_and_oop_constructs' => 'next'
+            'anonymous_functions_opening_brace' => 'same_line', // 对应 'position_after_anonymous_constructs' => 'same'
+            'anonymous_classes_opening_brace' => 'same_line', // 对应 'position_after_anonymous_constructs' => 'same'
+            'allow_single_line_empty_anonymous_classes' => true, // 对应 'allow_single_line_anonymous_class_with_empty_body' => true
+            'allow_single_line_anonymous_functions' => true, // 对应 'allow_single_line_closure' => true
         ],
         'list_syntax' => [
             'syntax' => 'short',
@@ -58,9 +62,7 @@ return (new PhpCsFixer\Config())
         ],
         'ordered_imports' => [
             'imports_order' => [
-                'class',
-                'function',
-                'const',
+                'class', 'function', 'const',
             ],
             'sort_algorithm' => 'alpha',
         ],
@@ -94,7 +96,7 @@ return (new PhpCsFixer\Config())
         'no_useless_else' => true,
         'nullable_type_declaration_for_default_null_value' => true,
         'no_unused_imports' => true,
-        'not_operator_with_successor_space' => false,
+        'not_operator_with_successor_space' => true,
         'not_operator_with_space' => false,
         'ordered_class_elements' => true,
         'php_unit_strict' => false,

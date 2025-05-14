@@ -41,7 +41,7 @@ class BoundingBox implements JsonSerializable, JsonUnserializable
         }
 
         foreach ($bounds as $value) {
-            if (!is_int($value) && !is_float($value)) {
+            if (! is_int($value) && ! is_float($value)) {
                 throw new \InvalidArgumentException('BoundingBox values must be integers or floats');
             }
         }
@@ -68,7 +68,6 @@ class BoundingBox implements JsonSerializable, JsonUnserializable
     /**
      * 序列化为 GeoJSON 数组。
      *
-     * @return array
      */
     public function jsonSerialize(): array
     {
@@ -78,13 +77,11 @@ class BoundingBox implements JsonSerializable, JsonUnserializable
     /**
      * 反序列化 BoundingBox。
      *
-     * @param mixed $json
-     * @return static
      * @throws \luoyy\Spatial\Exception\UnserializationException
      */
     final public static function jsonUnserialize(mixed $json): static
     {
-        if (!is_array($json)) {
+        if (! is_array($json)) {
             throw UnserializationException::invalidValue('BoundingBox', $json, 'array');
         }
 

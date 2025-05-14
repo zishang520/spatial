@@ -35,7 +35,6 @@ class FeatureCollection extends AbstractCollection
 
     /**
      * 获取集合类型。
-     * @return TypeEnum
      */
     public function getType(): TypeEnum
     {
@@ -53,7 +52,6 @@ class FeatureCollection extends AbstractCollection
 
     /**
      * 序列化为 GeoJSON 数组。
-     * @return array
      */
     public function jsonSerialize(): array
     {

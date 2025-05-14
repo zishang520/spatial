@@ -36,7 +36,6 @@ class Linked extends CoordinateReferenceSystem
     /**
      * 获取类型。
      *
-     * @return string
      */
     public function getType(): string
     {
@@ -47,18 +46,17 @@ class Linked extends CoordinateReferenceSystem
      * 工厂方法：通过属性反序列化 Linked CRS 对象。
      *
      * @param array|object $properties
-     * @return self
      * @throws UnserializationException
      */
     protected static function jsonUnserializeFromProperties($properties): self
     {
-        if (!is_array($properties) && !is_object($properties)) {
+        if (! is_array($properties) && ! is_object($properties)) {
             throw UnserializationException::invalidProperty('Linked CRS', 'properties', $properties, 'array or object');
         }
 
         $properties = new ArrayObject($properties);
 
-        if (!$properties->offsetExists('href')) {
+        if (! $properties->offsetExists('href')) {
             throw UnserializationException::missingProperty('Linked CRS', 'properties.href', 'string');
         }
 

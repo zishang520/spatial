@@ -29,9 +29,6 @@ abstract class Point extends GeometryPoint implements PointInterface
     /**
      * 坐标点.
      * @copyright (c) zishang520 All Rights Reserved
-     * @param float $longitude 经度
-     * @param float $latitude 纬度
-     * @param bool|null $noAutofix noAutoFix表示是否自动将经度修正到 [-180,180] 区间内，缺省为false
      * @throw \RangeException
      */
     public static function make(array $position, CoordinateReferenceSystem|BoundingBox ...$args): static
@@ -42,7 +39,6 @@ abstract class Point extends GeometryPoint implements PointInterface
     /**
      * 获取坐标系统类型。
      *
-     * @return CoordinateSystemEnum
      */
     abstract public function getCoordinateSystem(): CoordinateSystemEnum;
 

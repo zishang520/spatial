@@ -102,7 +102,7 @@ class GpxAdapter
     public static function parse(string $gpx)
     {
         $xml = simplexml_load_string($gpx);
-        if (!$xml) {
+        if (! $xml) {
             throw new \InvalidArgumentException('Invalid GPX');
         }
         // 支持带namespace的标签
@@ -143,10 +143,10 @@ class GpxAdapter
                         $lines[] = $coords;
                     }
                 }
-                if ($points && !$lines) {
+                if ($points && ! $lines) {
                     return new MultiPoint($points);
                 }
-                if (!$points && $lines) {
+                if (! $points && $lines) {
                     if (count($lines) === 1) {
                         return new LineString($lines[0]);
                     }

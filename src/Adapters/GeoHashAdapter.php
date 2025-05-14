@@ -74,7 +74,7 @@ class GeoHashAdapter
                     $latInterval[1] = $mid;
                 }
             }
-            $isEven = !$isEven;
+            $isEven = ! $isEven;
             if ($bit < 4) {
                 $bit++;
             } else {
@@ -118,7 +118,7 @@ class GeoHashAdapter
                         $latInterval[1] = $mid;
                     }
                 }
-                $isEven = !$isEven;
+                $isEven = ! $isEven;
             }
         }
         return [($lonInterval[0] + $lonInterval[1]) / 2, ($latInterval[0] + $latInterval[1]) / 2];
