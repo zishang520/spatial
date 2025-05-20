@@ -23,7 +23,6 @@ class WktAdapter
      *
      * @param Geometry|GeometryCollection $geometry 几何对象
      * @param bool $withAltitude 是否包含高程
-     * @return string WKT 字符串
      */
     public static function convert(Geometry|GeometryCollection $geometry, bool $withAltitude = true): string
     {
@@ -95,10 +94,9 @@ class WktAdapter
      * 解析 WKT 字符串为 Geometry 对象。
      *
      * @param string $wkt WKT 字符串
-     * @return Geometry|GeometryCollection
      * @throws \InvalidArgumentException 格式错误或不支持的类型
      */
-    public static function parse(string $wkt)
+    public static function parse(string $wkt): Point|LineString|Polygon|MultiPoint|MultiLineString|MultiPolygon|GeometryCollection
     {
         $wkt = trim($wkt);
         if (stripos($wkt, 'SRID=') === 0) {
@@ -148,12 +146,12 @@ class WktAdapter
                 $geoms = [];
                 $depth = 0;
                 $start = 0;
-                for ($i = 0; $i < strlen($body); $i++) {
+                for ($i = 0; $i < strlen($body); ++$i) {
                     if ($body[$i] === '(') {
-                        $depth++;
+                        ++$depth;
                     }
                     if ($body[$i] === ')') {
-                        $depth--;
+                        --$depth;
                     }
                     if ($body[$i] === ',' && $depth === 0) {
                         $geoms[] = substr($body, $start, $i - $start);
@@ -172,15 +170,14 @@ class WktAdapter
      * 解析WKT坐标字符串为坐标数组。
      *
      * @param string $str WKT坐标字符串
-     * @return array 坐标数组
      */
     private static function parseWktCoordinates(string $str): array
     {
         $str = trim($str, '() ');
         $parts = preg_split('/\s*,\s*/', $str);
         $result = [];
-        foreach ($parts as $pt) {
-            $result[] = array_map('floatval', preg_split('/\s+/', trim($pt)));
+        foreach ($parts as $part) {
+            $result[] = array_map('floatval', preg_split('/\s+/', trim($part)));
         }
         return $result;
     }
@@ -190,7 +187,6 @@ class WktAdapter
      *
      * @param array $point 坐标点
      * @param bool $withAltitude 是否包含高程
-     * @return string WKT坐标字符串
      */
     private static function formatCoordinate(array $point, bool $withAltitude = true): string
     {

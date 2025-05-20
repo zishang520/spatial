@@ -12,16 +12,15 @@ use luoyy\Spatial\Geometry\Point;
 class GeoHashAdapter
 {
     // GeoHash 编码表
-    private static $base32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+    private static string $base32 = '0123456789bcdefghjkmnpqrstuvwxyz';
 
-    private static $decodeMap = null;
+    private static ?array $decodeMap = null;
 
     /**
      * 将 Point 转为 GeoHash 字符串。
      *
      * @param Point $point 点对象
      * @param int $precision 精度（字符数，默认12）
-     * @return string GeoHash 字符串
      */
     public static function convert(Point $point, int $precision = 12): string
     {
@@ -32,7 +31,6 @@ class GeoHashAdapter
      * 将 GeoHash 字符串转为 Point 对象。
      *
      * @param string $geohash GeoHash 字符串
-     * @return Point 点对象
      */
     public static function parse(string $geohash): Point
     {
@@ -45,7 +43,6 @@ class GeoHashAdapter
      * @param float $lat 纬度
      * @param float $lon 经度
      * @param int $precision 精度（字符数，默认12）
-     * @return string GeoHash 字符串
      */
     private static function encode(float $lat, float $lon, int $precision = 12): string
     {
@@ -76,7 +73,7 @@ class GeoHashAdapter
             }
             $isEven = ! $isEven;
             if ($bit < 4) {
-                $bit++;
+                ++$bit;
             } else {
                 $geohash .= self::$base32[$ch];
                 $bit = 0;
@@ -90,7 +87,6 @@ class GeoHashAdapter
      * GeoHash 解码。
      *
      * @param string $geohash GeoHash 字符串
-     * @return array [lon, lat] 解码后的经纬度数组
      */
     private static function decode(string $geohash): array
     {
@@ -105,14 +101,14 @@ class GeoHashAdapter
             for ($mask = 16; $mask >= 1; $mask >>= 1) {
                 if ($isEven) {
                     $mid = ($lonInterval[0] + $lonInterval[1]) / 2;
-                    if ($cd & $mask) {
+                    if (($cd & $mask) !== 0) {
                         $lonInterval[0] = $mid;
                     } else {
                         $lonInterval[1] = $mid;
                     }
                 } else {
                     $mid = ($latInterval[0] + $latInterval[1]) / 2;
-                    if ($cd & $mask) {
+                    if (($cd & $mask) !== 0) {
                         $latInterval[0] = $mid;
                     } else {
                         $latInterval[1] = $mid;

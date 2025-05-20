@@ -17,5 +17,9 @@
         "psr-4": {
             "luoyy\\Spatial\\": "src/"
         }
+    },
+    "require-dev": {
+        "rector/rector": "^2.0",
+        "phpstan/phpstan": "^2.1"
     }
 }

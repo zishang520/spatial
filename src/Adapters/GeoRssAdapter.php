@@ -24,7 +24,6 @@ class GeoRssAdapter
      * @param Geometry|GeometryCollection $geometry 几何对象
      * @param bool $withAltitude 是否包含高程
      * @param string|null $namespace 命名空间前缀
-     * @return string GeoRSS XML 字符串
      */
     public static function convert(Geometry|GeometryCollection $geometry, bool $withAltitude = true, ?string $namespace = null): string
     {
@@ -92,10 +91,9 @@ class GeoRssAdapter
      * 解析 GeoRSS XML 字符串为 Geometry 对象。
      *
      * @param string $georss GeoRSS XML 字符串
-     * @return Geometry|GeometryCollection
      * @throws \InvalidArgumentException 格式不支持或解析失败
      */
-    public static function parse(string $georss)
+    public static function parse(string $georss): Point|LineString|Polygon|MultiPolygon|MultiLineString|MultiPoint|GeometryCollection
     {
         $xml = simplexml_load_string($georss);
         if (! $xml) {
@@ -128,19 +126,19 @@ class GeoRssAdapter
                     $polygons[] = [self::parseGeoRssCoordinates((string) $child)];
                 }
                 $geoms = [];
-                if ($points) {
+                if ($points !== []) {
                     $geoms[] = count($points) === 1 ? new Point($points[0]) : new MultiPoint($points);
                 }
-                if ($lines) {
+                if ($lines !== []) {
                     $geoms[] = count($lines) === 1 ? new LineString($lines[0]) : new MultiLineString($lines);
                 }
-                if ($polygons) {
+                if ($polygons !== []) {
                     $geoms[] = count($polygons) === 1 ? new Polygon($polygons[0]) : new MultiPolygon($polygons);
                 }
                 if (count($geoms) === 1) {
                     return $geoms[0];
                 }
-                if ($geoms) {
+                if ($geoms !== []) {
                     return new GeometryCollection($geoms);
                 }
                 throw new \InvalidArgumentException('Unsupported or unknown GeoRSS geometry');
@@ -151,7 +149,6 @@ class GeoRssAdapter
      * 解析 GeoRSS 坐标字符串为坐标数组。
      *
      * @param string $coords 坐标字符串
-     * @return array 坐标数组
      */
     private static function parseGeoRssCoordinates(string $coords): array
     {
@@ -168,7 +165,6 @@ class GeoRssAdapter
      *
      * @param array $point 坐标点数组
      * @param bool $withAltitude 是否包含高程
-     * @return string 格式化后的字符串
      */
     private static function formatGeoRssCoordinate(array $point, bool $withAltitude = true): string
     {

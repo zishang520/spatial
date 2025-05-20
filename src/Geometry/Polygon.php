@@ -20,7 +20,7 @@ class Polygon extends Geometry
     /**
      * 构造函数。
      *
-     * @param array<LinearRing|array<Point|array<int|float>>> $linearRings LinearRing 对象数组或坐标数组。
+     * @param array<LinearRing|array<Point|array<int|float>>> $linearRings linearRing 对象数组或坐标数组
      * @param CoordinateReferenceSystem|BoundingBox ...$args 可选参数，坐标参考系、边界框或坐标系统枚举。
      */
     public function __construct(array $linearRings, CoordinateReferenceSystem|BoundingBox ...$args)
@@ -31,8 +31,6 @@ class Polygon extends Geometry
 
     /**
      * 获取类型。
-     *
-     * @return TypeEnum 类型枚举，恒为 TypeEnum::POLYGON。
      */
     public function getType(): TypeEnum
     {

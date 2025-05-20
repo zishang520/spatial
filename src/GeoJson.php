@@ -2,24 +2,16 @@
 
 namespace luoyy\Spatial;
 
-use ArrayObject;
-use JsonSerializable;
 use luoyy\Spatial\Contracts\JsonUnserializable;
 use luoyy\Spatial\CoordinateReferenceSystem\CoordinateReferenceSystem;
 use luoyy\Spatial\Enums\TypeEnum;
 use luoyy\Spatial\Exception\UnserializationException;
 
-use function array_map;
-use function is_array;
-use function is_object;
-use function sprintf;
-use function strncmp;
-
 /**
  * GeoJson 对象基类，所有地理对象的基础。
  * 支持类型、边界框、坐标参考系等标准属性。
  */
-abstract class GeoJson implements JsonSerializable, JsonUnserializable
+abstract class GeoJson implements \JsonSerializable, JsonUnserializable
 {
     /**
      * @var BoundingBox|null 边界框对象
@@ -33,13 +25,11 @@ abstract class GeoJson implements JsonSerializable, JsonUnserializable
 
     /**
      * 获取类型。
-     *
      */
     abstract public function getType(): TypeEnum;
 
     /**
      * 获取边界框对象。
-     *
      */
     public function getBoundingBox(): ?BoundingBox
     {
@@ -48,7 +38,6 @@ abstract class GeoJson implements JsonSerializable, JsonUnserializable
 
     /**
      * 获取坐标参考系对象。
-     *
      */
     public function getCrs(): ?CoordinateReferenceSystem
     {
@@ -57,17 +46,16 @@ abstract class GeoJson implements JsonSerializable, JsonUnserializable
 
     /**
      * 序列化为 GeoJSON 数组。
-     *
      */
     public function jsonSerialize(): array
     {
         $json = ['type' => $this->getType()->value];
 
-        if (isset($this->crs)) {
+        if ($this->crs instanceof CoordinateReferenceSystem) {
             $json['crs'] = $this->crs->jsonSerialize();
         }
 
-        if (isset($this->boundingBox)) {
+        if ($this->boundingBox instanceof BoundingBox) {
             $json['bbox'] = $this->boundingBox->jsonSerialize();
         }
 
@@ -81,17 +69,17 @@ abstract class GeoJson implements JsonSerializable, JsonUnserializable
      */
     final public static function jsonUnserialize(mixed $json): GeoJson
     {
-        if (! is_array($json) && ! is_object($json)) {
+        if (! \is_array($json) && ! \is_object($json)) {
             throw UnserializationException::invalidValue('GeoJson', $json, 'array or object');
         }
 
-        $json = new ArrayObject($json);
+        $json = new \ArrayObject($json);
 
         if (! $json->offsetExists('type') || ! is_string($json['type'])) {
             throw UnserializationException::missingProperty('GeoJson', 'type', 'string');
         }
 
-        $type = (string) $json['type'];
+        $type = $json['type'];
         $args = [];
 
         $typeEnum = TypeEnum::tryFrom($type);
@@ -101,23 +89,23 @@ abstract class GeoJson implements JsonSerializable, JsonUnserializable
             TypeEnum::MULTI_POINT,
             TypeEnum::MULTI_POLYGON,
             TypeEnum::POINT,
-            TypeEnum::POLYGON => (function () use ($json, $type, &$args) {
+            TypeEnum::POLYGON => (function () use ($json, $type, &$args): void {
                 if (! $json->offsetExists('coordinates')) {
                     throw UnserializationException::missingProperty($type, 'coordinates', 'array');
                 }
-                if (! is_array($json['coordinates'])) {
+                if (! \is_array($json['coordinates'])) {
                     throw UnserializationException::invalidProperty($type, 'coordinates', $json['coordinates'], 'array');
                 }
                 $args[] = $json['coordinates'];
             })(),
-            TypeEnum::FEATURE => (function () use ($json, $type, &$args) {
+            TypeEnum::FEATURE => (function () use ($json, $type, &$args): void {
                 $geometry = $json['geometry'] ?? null;
                 $properties = $json['properties'] ?? null;
                 $id = $json['id'] ?? null;
-                if ($geometry !== null && ! is_array($geometry) && ! is_object($geometry)) {
+                if ($geometry !== null && ! \is_array($geometry) && ! \is_object($geometry)) {
                     throw UnserializationException::invalidProperty($type, 'geometry', $geometry, 'array or object');
                 }
-                if ($properties !== null && ! is_array($properties) && ! is_object($properties)) {
+                if ($properties !== null && ! \is_array($properties) && ! \is_object($properties)) {
                     throw UnserializationException::invalidProperty($type, 'properties', $properties, 'array or object');
                 }
                 if ($id !== null && ! is_int($id) && ! is_string($id)) {
@@ -127,23 +115,23 @@ abstract class GeoJson implements JsonSerializable, JsonUnserializable
                 $args[] = $properties !== null ? (array) $properties : null;
                 $args[] = $id;
             })(),
-            TypeEnum::FEATURE_COLLECTION => (function () use ($json, $type, &$args) {
+            TypeEnum::FEATURE_COLLECTION => (function () use ($json, $type, &$args): void {
                 if (! $json->offsetExists('features')) {
                     throw UnserializationException::missingProperty($type, 'features', 'array');
                 }
-                if (! is_array($json['features'])) {
+                if (! \is_array($json['features'])) {
                     throw UnserializationException::invalidProperty($type, 'features', $json['features'], 'array');
                 }
-                $args[] = array_map(static::jsonUnserialize(...), $json['features']);
+                $args[] = \array_map(static::jsonUnserialize(...), $json['features']);
             })(),
-            TypeEnum::GEOMETRY_COLLECTION => (function () use ($json, $type, &$args) {
+            TypeEnum::GEOMETRY_COLLECTION => (function () use ($json, $type, &$args): void {
                 if (! $json->offsetExists('geometries')) {
                     throw UnserializationException::missingProperty($type, 'geometries', 'array');
                 }
-                if (! is_array($json['geometries'])) {
+                if (! \is_array($json['geometries'])) {
                     throw UnserializationException::invalidProperty($type, 'geometries', $json['geometries'], 'array');
                 }
-                $args[] = array_map(static::jsonUnserialize(...), $json['geometries']);
+                $args[] = \array_map(static::jsonUnserialize(...), $json['geometries']);
             })(),
             default => throw UnserializationException::unsupportedType('GeoJson', $type),
         };
@@ -156,16 +144,15 @@ abstract class GeoJson implements JsonSerializable, JsonUnserializable
             $args[] = CoordinateReferenceSystem::jsonUnserialize($json['crs']);
         }
 
-        if (! class_exists($class = sprintf('%s\%s\%s', __NAMESPACE__, (strncmp('Feature', $type, 7) === 0 ? 'Feature' : 'Geometry'), $type), true)) {
+        if (! class_exists($class = \sprintf('%s\%s\%s', __NAMESPACE__, \strncmp('Feature', $type, 7) === 0 ? 'Feature' : 'Geometry', $type), true)) {
             throw UnserializationException::unsupportedType('GeoJson', $type);
-        };
+        }
 
         return new $class(...$args);
     }
 
     /**
      * 设置可选构造参数（CRS、BoundingBox、坐标系统类型）。
-     *
      */
     protected function setOptionalConstructorArgs(array $args): void
     {

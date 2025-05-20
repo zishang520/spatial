@@ -2,23 +2,17 @@
 
 namespace luoyy\Spatial;
 
-use JsonSerializable;
 use luoyy\Spatial\Contracts\JsonUnserializable;
 use luoyy\Spatial\Exception\UnserializationException;
-
-use function count;
-use function is_array;
-use function is_float;
-use function is_int;
 
 /**
  * 边界框对象，表示空间范围的最小矩形。
  * 支持 GeoJSON 标准。
  */
-class BoundingBox implements JsonSerializable, JsonUnserializable
+class BoundingBox implements \JsonSerializable, JsonUnserializable
 {
     /**
-     * @var array<float|int> 边界值数组。
+     * @var array<float|int> 边界值数组
      */
     protected array $bounds;
 
@@ -30,23 +24,24 @@ class BoundingBox implements JsonSerializable, JsonUnserializable
      */
     public function __construct(array $bounds)
     {
-        $count = count($bounds);
+        $count = \count($bounds);
 
         if ($count < 4) {
             throw new \InvalidArgumentException('BoundingBox requires at least four values');
         }
 
-        if ($count % 2) {
+        if ($count % 2 !== 0) {
             throw new \InvalidArgumentException('BoundingBox requires an even number of values');
         }
 
-        foreach ($bounds as $value) {
-            if (! is_int($value) && ! is_float($value)) {
+        foreach ($bounds as $bound) {
+            /* @phpstan-ignore-next-line */
+            if (! \is_float($bound) && ! \is_int($bound)) {
                 throw new \InvalidArgumentException('BoundingBox values must be integers or floats');
             }
         }
 
-        for ($i = 0; $i < ($count / 2); $i++) {
+        for ($i = 0; $i < ($count / 2); ++$i) {
             if ($bounds[$i] > $bounds[$i + ($count / 2)]) {
                 throw new \InvalidArgumentException('BoundingBox min values must precede max values');
             }
@@ -57,8 +52,6 @@ class BoundingBox implements JsonSerializable, JsonUnserializable
 
     /**
      * 获取边界值数组。
-     *
-     * @return array<float|int>
      */
     public function getBounds(): array
     {
@@ -67,7 +60,6 @@ class BoundingBox implements JsonSerializable, JsonUnserializable
 
     /**
      * 序列化为 GeoJSON 数组。
-     *
      */
     public function jsonSerialize(): array
     {
@@ -77,14 +69,14 @@ class BoundingBox implements JsonSerializable, JsonUnserializable
     /**
      * 反序列化 BoundingBox。
      *
-     * @throws \luoyy\Spatial\Exception\UnserializationException
+     * @throws UnserializationException
      */
-    final public static function jsonUnserialize(mixed $json): static
+    final public static function jsonUnserialize(mixed $json): BoundingBox
     {
-        if (! is_array($json)) {
+        if (! \is_array($json)) {
             throw UnserializationException::invalidValue('BoundingBox', $json, 'array');
         }
 
-        return new static($json);
+        return new self($json);
     }
 }

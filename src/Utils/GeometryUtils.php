@@ -3,6 +3,7 @@
 namespace luoyy\Spatial\Utils;
 
 use luoyy\Spatial\Geometry\LinearRing;
+use luoyy\Spatial\Geometry\Point;
 use luoyy\Spatial\Geometry\Polygon;
 
 /**
@@ -16,7 +17,6 @@ class GeometryUtils
      * 归一化 Polygon 构造参数，确保每个元素为 LinearRing 并返回其 coordinates。
      *
      * @param array<LinearRing|array<Point|array<int|float>>> $linearRings 线性环数组
-     * @return array 归一化后的坐标数组
      */
     public static function normalizePolygonCoordinates(array $linearRings): array
     {
@@ -34,7 +34,6 @@ class GeometryUtils
      * 归一化 MultiPolygon 构造参数，确保每个元素为 Polygon 并返回其 coordinates。
      *
      * @param array<Polygon|array<LinearRing|array<Point|array<int|float>>>> $polygons 多边形数组
-     * @return array 归一化后的坐标数组
      */
     public static function normalizeMultiPolygonCoordinates(array $polygons): array
     {

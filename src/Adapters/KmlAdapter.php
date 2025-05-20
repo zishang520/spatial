@@ -24,7 +24,6 @@ class KmlAdapter
      * @param Geometry|GeometryCollection $geometry 几何对象
      * @param bool $withAltitude 是否包含高程
      * @param string|null $namespace 命名空间前缀
-     * @return string KML 字符串
      */
     public static function convert(Geometry|GeometryCollection $geometry, bool $withAltitude = true, ?string $namespace = null): string
     {
@@ -111,10 +110,9 @@ class KmlAdapter
      * 解析 KML 字符串为 Geometry 对象。
      *
      * @param string $kml KML 字符串
-     * @return Geometry|GeometryCollection
      * @throws \InvalidArgumentException 格式错误或不支持的类型
      */
-    public static function parse(string $kml)
+    public static function parse(string $kml): Point|LineString|Polygon|MultiPoint|MultiLineString|MultiPolygon|GeometryCollection
     {
         $xml = simplexml_load_string($kml);
         if (! $xml) {
@@ -178,12 +176,11 @@ class KmlAdapter
      * 解析KML坐标字符串为坐标数组。
      *
      * @param string $coords KML 坐标字符串
-     * @return array 坐标数组
      */
     private static function parseKmlCoordinates(string $coords): array
     {
         return array_map(
-            fn($c) => array_map('floatval', preg_split('/,/', trim($c))),
+            fn($c): array => array_map('floatval', preg_split('/,/', trim($c))),
             preg_split('/\s+/', trim($coords), -1, PREG_SPLIT_NO_EMPTY)
         );
     }
@@ -193,7 +190,6 @@ class KmlAdapter
      *
      * @param array $point 坐标点
      * @param bool $withAltitude 是否包含高程
-     * @return string KML 坐标字符串
      */
     private static function formatKmlCoordinate(array $point, bool $withAltitude = true): string
     {

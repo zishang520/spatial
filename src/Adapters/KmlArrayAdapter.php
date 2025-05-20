@@ -24,7 +24,6 @@ class KmlArrayAdapter
      * @param Geometry|GeometryCollection $geometry 几何对象
      * @param bool $withAltitude 是否包含高程
      * @param string|null $namespace 命名空间前缀
-     * @return array KML 数组
      */
     public static function convert(Geometry|GeometryCollection $geometry, bool $withAltitude = true, ?string $namespace = null): array
     {
@@ -32,8 +31,8 @@ class KmlArrayAdapter
         if ($geometry instanceof Point) {
             return [
                 $ns . 'Point' => [
-                    $ns . 'coordinates' => self::formatKmlCoordinate($geometry->getCoordinates(), $withAltitude)
-                ]
+                    $ns . 'coordinates' => self::formatKmlCoordinate($geometry->getCoordinates(), $withAltitude),
+                ],
             ];
         }
         if ($geometry instanceof LineString) {
@@ -43,28 +42,28 @@ class KmlArrayAdapter
             }
             return [
                 $ns . 'LineString' => [
-                    $ns . 'coordinates' => implode(' ', $coords)
-                ]
+                    $ns . 'coordinates' => implode(' ', $coords),
+                ],
             ];
         }
         if ($geometry instanceof Polygon) {
             $rings = $geometry->getCoordinates();
             $ringsArr = [];
-            foreach ($rings as $i => $ring) {
+            foreach ($rings as $ring) {
                 $coords = [];
                 foreach ($ring as $point) {
                     $coords[] = self::formatKmlCoordinate($point, $withAltitude);
                 }
                 $ringsArr[] = [
                     $ns . 'LinearRing' => [
-                        $ns . 'coordinates' => implode(' ', $coords)
-                    ]
+                        $ns . 'coordinates' => implode(' ', $coords),
+                    ],
                 ];
             }
             $arr = [
                 $ns . 'Polygon' => [
-                    $ns . 'outerBoundaryIs' => $ringsArr[0]
-                ]
+                    $ns . 'outerBoundaryIs' => $ringsArr[0],
+                ],
             ];
             if (count($ringsArr) > 1) {
                 $arr[$ns . 'Polygon'][$ns . 'innerBoundaryIs'] = array_slice($ringsArr, 1);
@@ -77,8 +76,8 @@ class KmlArrayAdapter
             foreach ($points as $point) {
                 $arr[] = [
                     $ns . 'Point' => [
-                        $ns . 'coordinates' => self::formatKmlCoordinate($point, $withAltitude)
-                    ]
+                        $ns . 'coordinates' => self::formatKmlCoordinate($point, $withAltitude),
+                    ],
                 ];
             }
             return [$ns . 'MultiPoint' => $arr];
@@ -93,8 +92,8 @@ class KmlArrayAdapter
                 }
                 $arr[] = [
                     $ns . 'LineString' => [
-                        $ns . 'coordinates' => implode(' ', $coords)
-                    ]
+                        $ns . 'coordinates' => implode(' ', $coords),
+                    ],
                 ];
             }
             return [$ns . 'MultiLineString' => $arr];
@@ -104,21 +103,21 @@ class KmlArrayAdapter
             $arr = [];
             foreach ($polygons as $polygon) {
                 $ringsArr = [];
-                foreach ($polygon as $i => $ring) {
+                foreach ($polygon as $ring) {
                     $coords = [];
                     foreach ($ring as $point) {
                         $coords[] = self::formatKmlCoordinate($point, $withAltitude);
                     }
                     $ringsArr[] = [
                         $ns . 'LinearRing' => [
-                            $ns . 'coordinates' => implode(' ', $coords)
-                        ]
+                            $ns . 'coordinates' => implode(' ', $coords),
+                        ],
                     ];
                 }
                 $polyArr = [
                     $ns . 'Polygon' => [
-                        $ns . 'outerBoundaryIs' => $ringsArr[0]
-                    ]
+                        $ns . 'outerBoundaryIs' => $ringsArr[0],
+                    ],
                 ];
                 if (count($ringsArr) > 1) {
                     $polyArr[$ns . 'Polygon'][$ns . 'innerBoundaryIs'] = array_slice($ringsArr, 1);
@@ -141,46 +140,45 @@ class KmlArrayAdapter
      * 将 KML 结构化数组解析为 Geometry 对象。
      *
      * @param array $kmlArr KML 数组
-     * @return Geometry|GeometryCollection
      * @throws \InvalidArgumentException 不支持的或未知的 KML 几何类型
      */
-    public static function parse(array $kmlArr)
+    public static function parse(array $kmlArr): Point|LineString|Polygon|MultiPoint|MultiLineString|MultiPolygon|GeometryCollection
     {
         if (isset($kmlArr['Point'])) {
-            $coords = array_map('floatval', preg_split('/[ ,]+/', $kmlArr['Point']['coordinates']));
+            $coords = array_map('floatval', preg_split('/[ ,]+/', (string) $kmlArr['Point']['coordinates']));
             return new Point($coords);
         }
         if (isset($kmlArr['LineString'])) {
-            $coords = array_map(fn($c) => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', $kmlArr['LineString']['coordinates'], -1, PREG_SPLIT_NO_EMPTY));
+            $coords = array_map(fn($c): array => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', (string) $kmlArr['LineString']['coordinates'], -1, PREG_SPLIT_NO_EMPTY));
             return new LineString($coords);
         }
         if (isset($kmlArr['Polygon'])) {
             $rings = [];
             if (isset($kmlArr['Polygon']['outerBoundaryIs'])) {
                 $outer = $kmlArr['Polygon']['outerBoundaryIs'];
-                $coords = array_map(fn($c) => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', $outer['LinearRing']['coordinates'], -1, PREG_SPLIT_NO_EMPTY));
+                $coords = array_map(fn($c): array => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', (string) $outer['LinearRing']['coordinates'], -1, PREG_SPLIT_NO_EMPTY));
                 $rings[] = $coords;
             }
             if (isset($kmlArr['Polygon']['innerBoundaryIs'])) {
                 $inners = $kmlArr['Polygon']['innerBoundaryIs'];
                 if (isset($inners[0])) {
                     foreach ($inners as $inner) {
-                        $coords = array_map(fn($c) => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', $inner['LinearRing']['coordinates'], -1, PREG_SPLIT_NO_EMPTY));
+                        $coords = array_map(fn($c): array => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', (string) $inner['LinearRing']['coordinates'], -1, PREG_SPLIT_NO_EMPTY));
                         $rings[] = $coords;
                     }
                 } else {
-                    $coords = array_map(fn($c) => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', $inners['LinearRing']['coordinates'], -1, PREG_SPLIT_NO_EMPTY));
+                    $coords = array_map(fn($c): array => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', (string) $inners['LinearRing']['coordinates'], -1, PREG_SPLIT_NO_EMPTY));
                     $rings[] = $coords;
                 }
             }
             return new Polygon($rings);
         }
         if (isset($kmlArr['MultiPoint'])) {
-            $points = array_map(fn($pt) => array_map('floatval', preg_split('/[ ,]+/', $pt['Point']['coordinates'])), $kmlArr['MultiPoint']);
+            $points = array_map(fn($pt): array => array_map('floatval', preg_split('/[ ,]+/', (string) $pt['Point']['coordinates'])), $kmlArr['MultiPoint']);
             return new MultiPoint($points);
         }
         if (isset($kmlArr['MultiLineString'])) {
-            $lines = array_map(fn($ls) => array_map(fn($c) => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', $ls['LineString']['coordinates'], -1, PREG_SPLIT_NO_EMPTY)), $kmlArr['MultiLineString']);
+            $lines = array_map(fn($ls): array => array_map(fn($c): array => array_map('floatval', preg_split('/,/', trim($c))), preg_split('/\s+/', (string) $ls['LineString']['coordinates'], -1, PREG_SPLIT_NO_EMPTY)), $kmlArr['MultiLineString']);
             return new MultiLineString($lines);
         }
         if (isset($kmlArr['MultiPolygon'])) {
@@ -199,7 +197,6 @@ class KmlArrayAdapter
      *
      * @param array $point 坐标点
      * @param bool $withAltitude 是否包含高程
-     * @return string KML 坐标字符串
      */
     private static function formatKmlCoordinate(array $point, bool $withAltitude = true): string
     {

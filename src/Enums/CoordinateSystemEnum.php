@@ -24,6 +24,6 @@ enum CoordinateSystemEnum: string
     case WGS84 = PointWGS84::class;      // WGS84 坐标系
     case GCJ02 = PointGCJ02::class;      // GCJ02 坐标系
     case BD09 = PointBD09::class;        // 百度 BD09 坐标系
-    case CGCS2000 = PointCGCS2000::class;// CGCS2000 坐标系
+    case CGCS2000 = PointCGCS2000::class; // CGCS2000 坐标系
     case GK = PointGK::class;            // 高斯-克吕格投影坐标系
 }

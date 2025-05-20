@@ -2,11 +2,7 @@
 
 namespace luoyy\Spatial\CoordinateReferenceSystem;
 
-use ArrayObject;
 use luoyy\Spatial\Exception\UnserializationException;
-
-use function is_array;
-use function is_object;
 
 /**
  * 命名型坐标参考系对象。
@@ -29,7 +25,6 @@ class Named extends CoordinateReferenceSystem
 
     /**
      * 获取类型。
-     *
      */
     public function getType(): string
     {
@@ -39,16 +34,15 @@ class Named extends CoordinateReferenceSystem
     /**
      * 工厂方法：通过属性反序列化 Named CRS 对象。
      *
-     * @param array|object $properties
      * @throws UnserializationException
      */
-    protected static function jsonUnserializeFromProperties($properties): self
+    protected static function jsonUnserializeFromProperties(mixed $properties): CoordinateReferenceSystem
     {
-        if (! is_array($properties) && ! is_object($properties)) {
+        if (! \is_array($properties) && ! \is_object($properties)) {
             throw UnserializationException::invalidProperty('Named CRS', 'properties', $properties, 'array or object');
         }
 
-        $properties = new ArrayObject($properties);
+        $properties = new \ArrayObject($properties);
 
         if (! $properties->offsetExists('name')) {
             throw UnserializationException::missingProperty('Named CRS', 'properties.name', 'string');

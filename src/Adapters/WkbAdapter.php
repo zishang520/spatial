@@ -23,7 +23,6 @@ class WkbAdapter
      *
      * @param Geometry|GeometryCollection $geometry 几何对象
      * @param bool $withAltitude 是否包含高程
-     * @return string WKB 十六进制字符串
      */
     public static function convert(Geometry|GeometryCollection $geometry, bool $withAltitude = true): string
     {
@@ -44,8 +43,8 @@ class WkbAdapter
             $wkbType = pack('V', $getType(2));
             $numPoints = pack('V', count($coords));
             $bin = $byteOrder . $wkbType . $numPoints;
-            foreach ($coords as $point) {
-                $bin .= self::packPoint($point, $withAltitude);
+            foreach ($coords as $coord) {
+                $bin .= self::packPoint($coord, $withAltitude);
             }
             return strtoupper(bin2hex($bin));
         }
@@ -68,10 +67,10 @@ class WkbAdapter
             $wkbType = pack('V', $getType(4));
             $numPoints = pack('V', count($coords));
             $bin = $byteOrder . $wkbType . $numPoints;
-            foreach ($coords as $point) {
+            foreach ($coords as $coord) {
                 $pointByteOrder = pack('C', 1);
                 $pointType = pack('V', $getType(1));
-                $bin .= $pointByteOrder . $pointType . self::packPoint($point, $withAltitude);
+                $bin .= $pointByteOrder . $pointType . self::packPoint($coord, $withAltitude);
             }
             return strtoupper(bin2hex($bin));
         }
@@ -130,9 +129,8 @@ class WkbAdapter
      * 解析 WKB 十六进制字符串为 Geometry 对象。
      *
      * @param string $wkbHex WKB 十六进制字符串
-     * @return Geometry|GeometryCollection
      */
-    public static function parse(string $wkbHex)
+    public static function parse(string $wkbHex): Point|LineString|Polygon|MultiPoint|MultiLineString|MultiPolygon|GeometryCollection
     {
         $bin = hex2bin($wkbHex);
         $offset = 0;
@@ -164,7 +162,7 @@ class WkbAdapter
         return unpack($le ? 'V' : 'N', self::readByte($bin, $offset, 4))[1];
     }
 
-    private static function parseGeom(string $bin, int &$offset): object
+    private static function parseGeom(string $bin, int &$offset): Point|LineString|Polygon|MultiPoint|MultiLineString|MultiPolygon|GeometryCollection
     {
         $byteOrder = ord(self::readByte($bin, $offset, 1));
         $le = $byteOrder === 1;
@@ -176,28 +174,28 @@ class WkbAdapter
                 $x = self::readDouble($bin, $offset);
                 $y = self::readDouble($bin, $offset);
                 $z = $hasZ ? self::readDouble($bin, $offset) : null;
-                return new Point(array_filter([$x, $y, $z], fn($v) => $v !== null));
+                return new Point(array_filter([$x, $y, $z], fn($v): bool => $v !== null));
             case 2: // LineString
                 $num = self::readUInt32($bin, $offset, $le);
                 $coords = [];
-                for ($i = 0; $i < $num; $i++) {
+                for ($i = 0; $i < $num; ++$i) {
                     $x = self::readDouble($bin, $offset);
                     $y = self::readDouble($bin, $offset);
                     $z = $hasZ ? self::readDouble($bin, $offset) : null;
-                    $coords[] = array_filter([$x, $y, $z], fn($v) => $v !== null);
+                    $coords[] = array_filter([$x, $y, $z], fn($v): bool => $v !== null);
                 }
                 return new LineString($coords);
             case 3: // Polygon
                 $numRings = self::readUInt32($bin, $offset, $le);
                 $rings = [];
-                for ($i = 0; $i < $numRings; $i++) {
+                for ($i = 0; $i < $numRings; ++$i) {
                     $num = self::readUInt32($bin, $offset, $le);
                     $coords = [];
-                    for ($j = 0; $j < $num; $j++) {
+                    for ($j = 0; $j < $num; ++$j) {
                         $x = self::readDouble($bin, $offset);
                         $y = self::readDouble($bin, $offset);
                         $z = $hasZ ? self::readDouble($bin, $offset) : null;
-                        $coords[] = array_filter([$x, $y, $z], fn($v) => $v !== null);
+                        $coords[] = array_filter([$x, $y, $z], fn($v): bool => $v !== null);
                     }
                     $rings[] = $coords;
                 }
@@ -205,28 +203,28 @@ class WkbAdapter
             case 4: // MultiPoint
                 $num = self::readUInt32($bin, $offset, $le);
                 $points = [];
-                for ($i = 0; $i < $num; $i++) {
+                for ($i = 0; $i < $num; ++$i) {
                     $points[] = self::parseGeom($bin, $offset);
                 }
-                return new MultiPoint(array_map(fn($pt) => $pt->getCoordinates(), $points));
+                return new MultiPoint(array_map(fn($pt): array => $pt->getCoordinates(), $points));
             case 5: // MultiLineString
                 $num = self::readUInt32($bin, $offset, $le);
                 $lines = [];
-                for ($i = 0; $i < $num; $i++) {
+                for ($i = 0; $i < $num; ++$i) {
                     $lines[] = self::parseGeom($bin, $offset);
                 }
-                return new MultiLineString(array_map(fn($ls) => $ls->getCoordinates(), $lines));
+                return new MultiLineString(array_map(fn($ls): array => $ls->getCoordinates(), $lines));
             case 6: // MultiPolygon
                 $num = self::readUInt32($bin, $offset, $le);
                 $polys = [];
-                for ($i = 0; $i < $num; $i++) {
+                for ($i = 0; $i < $num; ++$i) {
                     $polys[] = self::parseGeom($bin, $offset);
                 }
-                return new MultiPolygon(array_map(fn($pg) => $pg->getCoordinates(), $polys));
+                return new MultiPolygon(array_map(fn($pg): array => $pg->getCoordinates(), $polys));
             case 7: // GeometryCollection
                 $num = self::readUInt32($bin, $offset, $le);
                 $geoms = [];
-                for ($i = 0; $i < $num; $i++) {
+                for ($i = 0; $i < $num; ++$i) {
                     $geoms[] = self::parseGeom($bin, $offset);
                 }
                 return new GeometryCollection($geoms);
@@ -239,13 +237,12 @@ class WkbAdapter
      * 检查坐标数组是否包含Z值。
      *
      * @param array $coords 坐标数组
-     * @return bool 是否包含Z值
      */
     private static function hasZInCoords(array $coords): bool
     {
-        foreach ($coords as $point) {
-            if (is_array($point)) {
-                if (self::hasZInCoords($point)) {
+        foreach ($coords as $coord) {
+            if (is_array($coord)) {
+                if (self::hasZInCoords($coord)) {
                     return true;
                 }
             } elseif (isset($coords[2]) && $coords[2] !== 0) {

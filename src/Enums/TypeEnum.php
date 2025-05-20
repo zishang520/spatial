@@ -20,7 +20,7 @@ namespace luoyy\Spatial\Enums;
 enum TypeEnum: string
 {
     case LINE_STRING = 'LineString';           // 线串
-    case MULTI_LINE_STRING = 'MultiLineString';// 多线串
+    case MULTI_LINE_STRING = 'MultiLineString'; // 多线串
     case MULTI_POINT = 'MultiPoint';           // 多点
     case MULTI_POLYGON = 'MultiPolygon';       // 多多边形
     case POINT = 'Point';                      // 点

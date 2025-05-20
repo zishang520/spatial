@@ -6,8 +6,6 @@ use luoyy\Spatial\BoundingBox;
 use luoyy\Spatial\CoordinateReferenceSystem\CoordinateReferenceSystem;
 use luoyy\Spatial\Enums\TypeEnum;
 
-use function array_map;
-
 /**
  * 多线串（MultiLineString）几何对象。
  *
@@ -21,13 +19,13 @@ class MultiLineString extends Geometry
     /**
      * 构造函数。
      *
-     * @param array<LineString|array<Point|array<int|float>>> $lineStrings LineString 对象数组或坐标数组。
+     * @param array<LineString|array<Point|array<int|float>>> $lineStrings lineString 对象数组或坐标数组
      * @param CoordinateReferenceSystem|BoundingBox ...$args 可选参数，坐标参考系、边界框或坐标系统枚举。
      */
     public function __construct(array $lineStrings, CoordinateReferenceSystem|BoundingBox ...$args)
     {
-        $this->coordinates = array_map(
-            static function ($lineString) {
+        $this->coordinates = \array_map(
+            static function ($lineString): array {
                 if (! $lineString instanceof LineString) {
                     $lineString = new LineString($lineString);
                 }
@@ -40,8 +38,6 @@ class MultiLineString extends Geometry
 
     /**
      * 获取类型。
-     *
-     * @return TypeEnum 类型枚举，恒为 TypeEnum::MULTI_LINE_STRING。
      */
     public function getType(): TypeEnum
     {

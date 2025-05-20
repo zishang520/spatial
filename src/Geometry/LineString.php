@@ -6,8 +6,6 @@ use luoyy\Spatial\BoundingBox;
 use luoyy\Spatial\CoordinateReferenceSystem\CoordinateReferenceSystem;
 use luoyy\Spatial\Enums\TypeEnum;
 
-use function count;
-
 /**
  * 线串（LineString）几何对象。
  *
@@ -21,13 +19,13 @@ class LineString extends MultiPoint
     /**
      * 构造函数。
      *
-     * @param array<Point|array<float|int>> $positions 点数组或坐标数组。
+     * @param array<Point|array<float|int>> $positions 点数组或坐标数组
      * @param CoordinateReferenceSystem|BoundingBox ...$args 可选参数，坐标参考系、边界框或坐标系统枚举。
-     * @throws \InvalidArgumentException 如果点数少于2。
+     * @throws \InvalidArgumentException 如果点数少于2
      */
     public function __construct(array $positions, CoordinateReferenceSystem|BoundingBox ...$args)
     {
-        if (count($positions) < 2) {
+        if (\count($positions) < 2) {
             throw new \InvalidArgumentException('LineString requires at least two positions');
         }
         parent::__construct($positions, ...$args);
@@ -35,8 +33,6 @@ class LineString extends MultiPoint
 
     /**
      * 获取类型。
-     *
-     * @return TypeEnum 类型枚举，恒为 TypeEnum::LINE_STRING。
      */
     public function getType(): TypeEnum
     {

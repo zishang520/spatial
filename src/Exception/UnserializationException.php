@@ -2,20 +2,12 @@
 
 namespace luoyy\Spatial\Exception;
 
-use RuntimeException;
-
-use function get_class;
-use function get_debug_type;
-use function gettype;
-use function is_object;
-use function sprintf;
-
 /**
  * 反序列化异常。
  *
  * 用于处理 GeoJSON、BoundingBox、CRS 等对象反序列化时的类型、属性、缺失或类型不支持等错误。
  */
-class UnserializationException extends RuntimeException
+class UnserializationException extends \RuntimeException
 {
     /**
      * 创建类型无效的反序列化异常。
@@ -24,13 +16,13 @@ class UnserializationException extends RuntimeException
      * @param mixed $value 实际值
      * @param string $expectedType 期望类型
      */
-    public static function invalidValue(string $context, $value, string $expectedType): self
+    public static function invalidValue(string $context, $value, string $expectedType): UnserializationException
     {
-        return new self(sprintf(
+        return new self(\sprintf(
             '%s expected value of type %s, %s given',
             $context,
             $expectedType,
-            get_debug_type($value)
+            \get_debug_type($value)
         ));
     }
 
@@ -42,14 +34,14 @@ class UnserializationException extends RuntimeException
      * @param mixed $value 实际值
      * @param string $expectedType 期望类型
      */
-    public static function invalidProperty(string $context, string $property, $value, string $expectedType): self
+    public static function invalidProperty(string $context, string $property, $value, string $expectedType): UnserializationException
     {
-        return new self(sprintf(
+        return new self(\sprintf(
             '%s expected "%s" property of type %s, %s given',
             $context,
             $property,
             $expectedType,
-            is_object($value) ? get_class($value) : gettype($value)
+            \is_object($value) ? \get_class($value) : \gettype($value)
         ));
     }
 
@@ -60,9 +52,9 @@ class UnserializationException extends RuntimeException
      * @param string $property 属性名
      * @param string $expectedType 期望类型
      */
-    public static function missingProperty(string $context, string $property, string $expectedType): self
+    public static function missingProperty(string $context, string $property, string $expectedType): UnserializationException
     {
-        return new self(sprintf(
+        return new self(\sprintf(
             '%s expected "%s" property of type %s, none given',
             $context,
             $property,
@@ -76,8 +68,8 @@ class UnserializationException extends RuntimeException
      * @param string $context 上下文描述
      * @param string $value 类型值
      */
-    public static function unsupportedType(string $context, string $value): self
+    public static function unsupportedType(string $context, string $value): UnserializationException
     {
-        return new self(sprintf('Invalid %s type "%s"', $context, $value));
+        return new self(\sprintf('Invalid %s type "%s"', $context, $value));
     }
 }

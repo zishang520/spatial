@@ -4,6 +4,11 @@ namespace luoyy\Spatial\Adapters;
 
 use luoyy\Spatial\Geometry\Geometry;
 use luoyy\Spatial\Geometry\GeometryCollection;
+use luoyy\Spatial\Geometry\MultiLineString;
+use luoyy\Spatial\Geometry\MultiPoint;
+use luoyy\Spatial\Geometry\MultiPolygon;
+use luoyy\Spatial\Geometry\Point;
+use luoyy\Spatial\Geometry\Polygon;
 
 /**
  * EWKT（扩展WKT）适配器。
@@ -18,7 +23,6 @@ class EwktAdapter
      * @param Geometry|GeometryCollection $geometry 几何对象
      * @param int|null $srid 空间参考ID，可选
      * @param bool $withAltitude 是否包含高程
-     * @return string EWKT 字符串
      */
     public static function convert(Geometry|GeometryCollection $geometry, ?int $srid = null, bool $withAltitude = true): string
     {
@@ -34,9 +38,8 @@ class EwktAdapter
      * 解析 EWKT 字符串为 Geometry 对象。
      *
      * @param string $ewkt EWKT 字符串
-     * @return Geometry|GeometryCollection
      */
-    public static function parse(string $ewkt)
+    public static function parse(string $ewkt): Point|Polygon|MultiPoint|MultiLineString|MultiPolygon|GeometryCollection
     {
         $srid = null;
         $wkt = $ewkt;

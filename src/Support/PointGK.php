@@ -15,9 +15,9 @@ class PointGK extends Point
     /**
      * 构造函数。
      *
-     * @param array<float|int> $position 坐标数组，至少包含东坐标、北坐标、带号。
+     * @param array<float|int> $position 坐标数组，至少包含东坐标、北坐标、带号
      * @param CoordinateReferenceSystem|BoundingBox ...$args 可选参数，坐标参考系或边界框。
-     * @throws \InvalidArgumentException 如果坐标元素不足3个。
+     * @throws \InvalidArgumentException 如果坐标元素不足3个
      */
     public function __construct(array $position, CoordinateReferenceSystem|BoundingBox ...$args)
     {

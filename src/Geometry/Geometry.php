@@ -13,19 +13,17 @@ use luoyy\Spatial\GeoJson;
 abstract class Geometry extends GeoJson
 {
     /**
-     * @var array 坐标数组，具体结构由子类定义。
+     * @var array 坐标数组，具体结构由子类定义
      */
     protected array $coordinates = [];
 
     /**
-     * @var int|null 空间参考ID（SRID），可选。
+     * @var int|null 空间参考ID（SRID），可选
      */
     protected ?int $srid = null;
 
     /**
      * 获取当前几何对象的坐标数组。
-     *
-     * @return array 坐标数组。
      */
     public function getCoordinates(): array
     {
@@ -34,8 +32,6 @@ abstract class Geometry extends GeoJson
 
     /**
      * 获取空间参考ID（SRID）。
-     *
-     * @return int|null SRID，若未设置则为 null。
      */
     public function getSrid(): ?int
     {
@@ -45,7 +41,7 @@ abstract class Geometry extends GeoJson
     /**
      * 设置空间参考ID（SRID）。
      *
-     * @param int|null $srid SRID。
+     * @param int|null $srid SRID
      */
     public function setSrid(?int $srid): void
     {
@@ -54,7 +50,6 @@ abstract class Geometry extends GeoJson
 
     /**
      * 序列化为 GeoJSON 数组。
-     *
      */
     public function jsonSerialize(): array
     {

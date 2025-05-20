@@ -43,7 +43,6 @@ class Spatial
      * @param PointInterface $point1 坐标点1
      * @param PointInterface $point2 坐标点2
      * @param float $radius 球半径，默认地球半径
-     * @return float 距离（米）
      */
     public static function distance(PointInterface $point1, PointInterface $point2, float $radius = self::EARTH_RADIUS): float
     {
@@ -76,11 +75,10 @@ class Spatial
     /**
      * 计算点到线的最短距离。
      *
-     * @param PointInterface $point 点坐标
+     * @param Point $point 点坐标
      * @param LineString $lineString 线串
-     * @return float 距离（米）
      */
-    public static function distanceToLine(PointInterface $point, LineString $lineString): float
+    public static function distanceToLine(Point $point, LineString $lineString): float
     {
         $distance = INF;
         $initial = null;
@@ -98,7 +96,6 @@ class Spatial
      *
      * @param Point $point 点坐标
      * @param LineString $lineString 仅包含2个点的线段
-     * @return Point 最近点
      */
     public static function closestOnSegment(Point $point, LineString $lineString): Point
     {
@@ -141,7 +138,6 @@ class Spatial
      *
      * @param Point $point 点坐标
      * @param LineString $lineString 线串
-     * @return Point 最近点
      */
     public static function closestOnLine(Point $point, LineString $lineString): Point
     {
@@ -149,11 +145,9 @@ class Spatial
         $initial = null;
         $distance = INF;
         foreach ($lineString->getCoordinates() as $_point) {
-            if (! is_null($initial)) {
-                if (($d = self::distance($point, $p = self::closestOnSegment($point, new LineString([$initial, $_point])))) < $distance) {
-                    $distance = $d;
-                    $out_point = $p;
-                }
+            if (! is_null($initial) && $d = self::distance($point, $p = self::closestOnSegment($point, new LineString([$initial, $_point]))) < $distance) {
+                $distance = $d;
+                $out_point = $p;
             }
             $initial = $_point;
         }
@@ -165,7 +159,6 @@ class Spatial
      *
      * @param LineString $lineString 线串
      * @param float $radius 球半径
-     * @return float 距离（米）
      */
     public static function lineDistance(LineString $lineString, float $radius = self::EARTH_RADIUS): float
     {
@@ -185,15 +178,14 @@ class Spatial
      *
      * @param Polygon $polygon 多边形
      * @param float $radius 球半径
-     * @return float 面积（平方米）
      */
     public static function ringArea(Polygon $polygon, float $radius = self::EARTH_RADIUS): float
     {
         $i = $radius * self::RADIAN;
         $initial = null;
         $result = 0.0;
-        foreach ($polygon->getCoordinates() as $lineStrings) {
-            foreach ($lineStrings as $point) {
+        foreach ($polygon->getCoordinates() as $lineString) {
+            foreach ($lineString as $point) {
                 if (! is_null($initial)) {
                     $result += ($initial[0] * $i * cos($initial[1] * self::RADIAN) * $point[1] * $i - $point[0] * $i * cos($point[1] * self::RADIAN) * $initial[1] * $i);
                 }
@@ -209,7 +201,6 @@ class Spatial
      * @param Point $point 中心点
      * @param float $dist 距离（米）
      * @param float $radius 球半径
-     * @return RangePoint 范围对象
      */
     public static function pointRange(Point $point, float $dist, float $radius = self::EARTH_RADIUS): RangePoint
     {
@@ -223,15 +214,14 @@ class Spatial
      *
      * @param PointInterface $point 中心点
      * @param float $dist 距离（米）
-     * @param LocationEnum $location 顶点方位
+     * @param LocationEnum $locationEnum 顶点方位
      * @param float $radius 球半径
-     * @return RangePoint 范围对象
      */
-    public static function pointLocationRange(PointInterface $point, float $dist, LocationEnum $location, float $radius = self::EARTH_RADIUS): RangePoint
+    public static function pointLocationRange(PointInterface $point, float $dist, LocationEnum $locationEnum, float $radius = self::EARTH_RADIUS): RangePoint
     {
         $range = 180 / self::PI * $dist / $radius;
         $lngR = $range / cos($point->getLatitude() * self::RADIAN);
-        return match ($location) {
+        return match ($locationEnum) {
             LocationEnum::NORTHWEST => new RangePoint($point->getLongitude() + $lngR, $point->getLatitude(), $point->getLongitude(), $point->getLatitude() - $range, $point->getAltitude()),
             LocationEnum::NORTHEAST => new RangePoint($point->getLongitude(), $point->getLatitude(), $point->getLongitude() - $lngR, $point->getLatitude() - $range, $point->getAltitude()),
             LocationEnum::SOUTHEAST => new RangePoint($point->getLongitude(), $point->getLatitude() + $range, $point->getLongitude() - $lngR, $point->getLatitude(), $point->getAltitude()),
@@ -244,15 +234,14 @@ class Spatial
      *
      * @param Point $point 坐标点
      * @param float $dist 距离（米）
-     * @param DirectionEnum $direction 方向
+     * @param DirectionEnum $directionEnum 方向
      * @param float $radius 球半径
-     * @return Point 平移后的点
      */
-    public static function pointPanning(Point $point, float $dist, DirectionEnum $direction, float $radius = self::EARTH_RADIUS): Point
+    public static function pointPanning(Point $point, float $dist, DirectionEnum $directionEnum, float $radius = self::EARTH_RADIUS): Point
     {
         $range = 180 / self::PI * $dist / $radius;
         $h = $point->getAltitude();
-        return match ($direction) {
+        return match ($directionEnum) {
             DirectionEnum::LEFT => new ($point::class)([$point->getLongitude() - ($range / cos($point->getLatitude() * self::RADIAN)), $point->getLatitude()] + ($h == 0 ? [] : [$h])),
             DirectionEnum::RIGHT => new ($point::class)([$point->getLongitude() + ($range / cos($point->getLatitude() * self::RADIAN)), $point->getLatitude()] + ($h == 0 ? [] : [$h])),
             DirectionEnum::UP => new ($point::class)([$point->getLongitude(), $point->getLatitude() + $range] + ($h == 0 ? [] : [$h])),
@@ -267,7 +256,6 @@ class Spatial
      * @param float $dist 距离（米）
      * @param float $bearing 方位角（度）
      * @param float $radius 球半径
-     * @return Point 移动后的点
      */
     public static function move(Point $point, float $dist, float $bearing, float $radius = self::EARTH_RADIUS): Point
     {
@@ -277,7 +265,7 @@ class Spatial
         $end_lat = asin(sin($fai) * cos($scale) + cos($fai) * sin($scale) * cos($bear));
         $end_lng = $point->getLongitude() + atan2(sin($bear) * sin($scale) * cos($fai), cos($scale) - sin($fai) * sin($end_lat)) / self::RADIAN;
         $h = $point->getAltitude();
-        return (clone $point::class)([fmod($end_lng + 540, 360) - 180, $end_lat / self::RADIAN] + ($h == 0 ? [] : [$h]));
+        return new ($point::class)([fmod($end_lng + 540, 360) - 180, $end_lat / self::RADIAN] + ($h == 0 ? [] : [$h]));
     }
 
     public static function panning(Point $point, float $dist, float $bearing, float $radius = self::EARTH_RADIUS): Point
@@ -290,7 +278,6 @@ class Spatial
      *
      * @param Point $point1 点1
      * @param Point $point2 点2
-     * @return float 方位角（度）
      */
     public static function bearing(Point $point1, Point $point2): float
     {
@@ -305,20 +292,18 @@ class Spatial
      * 坐标系转换。
      *
      * @param Point $point 原始点
-     * @param CoordinateSystemEnum $to 目标坐标系
-     * @return Point 转换后的点
+     * @param CoordinateSystemEnum $coordinateSystemEnum 目标坐标系
      * @throws \InvalidArgumentException 不支持的转换类型
      */
-    public static function transform(Point $point, CoordinateSystemEnum $to): Point
+    public static function transform(Point $point, CoordinateSystemEnum $coordinateSystemEnum): Point
     {
-        return Transform::transform($point, $to);
+        return Transform::transform($point, $coordinateSystemEnum);
     }
 
     /**
      * 获取 EGM96 平均海平面高度。
      *
      * @param Point $point 坐标点（需设置 altitude）
-     * @return float 平均海平面高度（米）
      */
     public static function meanSeaLevel(Point $point): float
     {
@@ -329,7 +314,6 @@ class Spatial
      * WGS84 椭球高转 EGM96 高。
      *
      * @param Point $point 坐标点（需设置 altitude）
-     * @return float EGM96 高（米）
      */
     public static function ellipsoidToEgm96(Point $point): float
     {
@@ -340,7 +324,6 @@ class Spatial
      * EGM96 高转 WGS84 椭球高。
      *
      * @param Point $point 坐标点（需设置 altitude）
-     * @return float 椭球高（米）
      */
     public static function egm96ToEllipsoid(Point $point): float
     {

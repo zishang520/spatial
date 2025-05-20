@@ -2,17 +2,12 @@
 
 namespace luoyy\Spatial;
 
-use ArrayIterator;
-use Countable;
-use IteratorAggregate;
-use Traversable;
-
 /**
  * 抽象集合基类，统一集合相关逻辑。
  *
  * 提供类型安全的集合存储、遍历、计数等功能。
  */
-abstract class AbstractCollection extends GeoJson implements Countable, IteratorAggregate
+abstract class AbstractCollection extends GeoJson implements \Countable, \IteratorAggregate
 {
     /**
      * @var array 集合元素数组
@@ -41,15 +36,13 @@ abstract class AbstractCollection extends GeoJson implements Countable, Iterator
         return count($this->items);
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
-        return new ArrayIterator($this->items);
+        return new \ArrayIterator($this->items);
     }
 
     /**
      * 获取集合元素。
-     *
-     * @return array 元素数组
      */
     public function getItems(): array
     {

@@ -24,7 +24,6 @@ class GpxAdapter
      * @param Geometry|GeometryCollection $geometry 几何对象
      * @param bool $withAltitude 是否包含高程
      * @param string|null $namespace 命名空间前缀
-     * @return string GPX XML 字符串
      */
     public static function convert(Geometry|GeometryCollection $geometry, bool $withAltitude = true, ?string $namespace = null): string
     {
@@ -96,10 +95,9 @@ class GpxAdapter
      * 解析 GPX XML 字符串为 Geometry 对象。
      *
      * @param string $gpx GPX XML 字符串
-     * @return Geometry|GeometryCollection
      * @throws \InvalidArgumentException 格式不支持或解析失败
      */
-    public static function parse(string $gpx)
+    public static function parse(string $gpx): Point|LineString|MultiLineString|MultiPoint|GeometryCollection
     {
         $xml = simplexml_load_string($gpx);
         if (! $xml) {
@@ -155,7 +153,7 @@ class GpxAdapter
                 if ($points && $lines) {
                     return new GeometryCollection([
                         new MultiPoint($points),
-                        count($lines) === 1 ? new LineString($lines[0]) : new MultiLineString($lines)
+                        count($lines) === 1 ? new LineString($lines[0]) : new MultiLineString($lines),
                     ]);
                 }
                 throw new \InvalidArgumentException('Unsupported GPX geometry');
@@ -166,13 +164,12 @@ class GpxAdapter
      * 解析 GPX trkpt/wpt 节点为坐标数组。
      *
      * @param \SimpleXMLElement $xml 节点对象
-     * @return array [lon, lat, ele]
      */
-    private static function parseGpxPoint($xml): array
+    private static function parseGpxPoint(\SimpleXMLElement $xml): array
     {
         $lat = (float) $xml['lat'];
         $lon = (float) $xml['lon'];
-        $ele = isset($xml->ele) ? (float) $xml->ele : 0;
+        $ele = $xml->offsetExists('ele') ? (float) $xml->offsetGet('ele') : 0;
         return [$lon, $lat, $ele];
     }
 
@@ -183,7 +180,6 @@ class GpxAdapter
      * @param string $tag 标签名
      * @param bool $withAltitude 是否包含高程
      * @param string|null $namespace 命名空间前缀
-     * @return string GPX XML 片段
      */
     private static function formatGpxPoint(array $point, string $tag = 'trkpt', bool $withAltitude = true, ?string $namespace = null): string
     {

@@ -7,7 +7,6 @@ use luoyy\Spatial\CoordinateReferenceSystem\CoordinateReferenceSystem;
 use luoyy\Spatial\Enums\TypeEnum;
 use luoyy\Spatial\GeoJson;
 use luoyy\Spatial\Geometry\Geometry;
-use stdClass;
 
 /**
  * GeoJSON 要素对象（Feature）。
@@ -96,7 +95,7 @@ class Feature extends GeoJson
 
         // Ensure empty associative arrays are encoded as JSON objects
         if ($json['properties'] === []) {
-            $json['properties'] = new stdClass();
+            $json['properties'] = new \stdClass();
         }
 
         if (isset($this->id)) {

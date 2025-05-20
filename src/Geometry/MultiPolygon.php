@@ -20,7 +20,7 @@ class MultiPolygon extends Geometry
     /**
      * 构造函数。
      *
-     * @param array<Polygon|array<LinearRing|array<Point|array<int|float>>>> $polygons Polygon 对象数组或坐标数组。
+     * @param array<Polygon|array<LinearRing|array<Point|array<int|float>>>> $polygons polygon 对象数组或坐标数组
      * @param CoordinateReferenceSystem|BoundingBox ...$args 可选参数，坐标参考系、边界框或坐标系统枚举。
      */
     public function __construct(array $polygons, CoordinateReferenceSystem|BoundingBox ...$args)
@@ -31,8 +31,6 @@ class MultiPolygon extends Geometry
 
     /**
      * 获取类型。
-     *
-     * @return TypeEnum 类型枚举，恒为 TypeEnum::MULTI_POLYGON。
      */
     public function getType(): TypeEnum
     {

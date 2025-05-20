@@ -2,15 +2,8 @@
 
 namespace luoyy\Spatial\CoordinateReferenceSystem;
 
-use ArrayObject;
-use BadMethodCallException;
-use JsonSerializable;
 use luoyy\Spatial\Contracts\JsonUnserializable;
 use luoyy\Spatial\Exception\UnserializationException;
-
-use function is_array;
-use function is_object;
-use function sprintf;
 
 /**
  * 坐标参考系（CRS）对象基类。
@@ -20,21 +13,20 @@ use function sprintf;
  * @see http://www.geojson.org/geojson-spec.html#coordinate-reference-system-objects
  * @since 1.0
  */
-abstract class CoordinateReferenceSystem implements JsonSerializable, JsonUnserializable
+abstract class CoordinateReferenceSystem implements \JsonSerializable, JsonUnserializable
 {
     /**
-     * @var array CRS 属性数组。
+     * @var array CRS 属性数组
      */
     protected array $properties;
 
     /**
-     * @var string CRS 类型。
+     * @var string CRS 类型
      */
     protected string $type;
 
     /**
      * 获取 CRS 属性。
-     *
      */
     public function getProperties(): array
     {
@@ -43,13 +35,11 @@ abstract class CoordinateReferenceSystem implements JsonSerializable, JsonUnseri
 
     /**
      * 获取 CRS 类型。
-     *
      */
     abstract public function getType(): string;
 
     /**
      * 序列化为 GeoJSON 数组。
-     *
      */
     public function jsonSerialize(): array
     {
@@ -62,16 +52,15 @@ abstract class CoordinateReferenceSystem implements JsonSerializable, JsonUnseri
     /**
      * 反序列化 CRS。
      *
-     * @param array|object $json
-     * @throws \luoyy\Spatial\Exception\UnserializationException
+     * @throws UnserializationException
      */
-    final public static function jsonUnserialize($json): static
+    final public static function jsonUnserialize(mixed $json): CoordinateReferenceSystem
     {
-        if (! is_array($json) && ! is_object($json)) {
+        if (! \is_array($json) && ! \is_object($json)) {
             throw UnserializationException::invalidValue('CRS', $json, 'array or object');
         }
 
-        $json = new ArrayObject($json);
+        $json = new \ArrayObject($json);
 
         if (! $json->offsetExists('type')) {
             throw UnserializationException::missingProperty('CRS', 'type', 'string');
@@ -98,11 +87,10 @@ abstract class CoordinateReferenceSystem implements JsonSerializable, JsonUnseri
     /**
      * 工厂方法：通过属性反序列化 CRS。
      *
-     * @param array|object $properties
      * @throws \BadMethodCallException
      */
-    protected static function jsonUnserializeFromProperties($properties): CoordinateReferenceSystem
+    protected static function jsonUnserializeFromProperties(mixed $properties): CoordinateReferenceSystem
     {
-        throw new BadMethodCallException(sprintf('%s must be overridden in a child class', __METHOD__));
+        throw new \BadMethodCallException(\sprintf('%s must be overridden in a child class', __METHOD__));
     }
 }

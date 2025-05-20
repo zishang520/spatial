@@ -59,7 +59,7 @@ class RangePoint implements \JsonSerializable
      *
      * @param array $data 包含 maxLongitude、maxLatitude、minLongitude、minLatitude、altitude 的数组
      */
-    public static function fromArray(array $data): self
+    public static function fromArray(array $data): RangePoint
     {
         return new self(
             $data['maxLongitude'] ?? 0,
@@ -73,10 +73,9 @@ class RangePoint implements \JsonSerializable
     /**
      * 获取当前范围对应的多边形对象。
      *
-     * @param CoordinateSystemEnum $to 目标坐标系，默认 WGS84
-     * @return Polygon 多边形对象
+     * @param CoordinateSystemEnum $coordinateSystemEnum 目标坐标系，默认 WGS84
      */
-    public function getPolygon(CoordinateSystemEnum $to = CoordinateSystemEnum::WGS84): Polygon
+    public function getPolygon(CoordinateSystemEnum $coordinateSystemEnum = CoordinateSystemEnum::WGS84): Polygon
     {
         $coords = [
             [$this->minLongitude, $this->maxLatitude],
@@ -86,15 +85,14 @@ class RangePoint implements \JsonSerializable
             [$this->minLongitude, $this->maxLatitude],
         ];
         if ($this->altitude != 0) {
-            $coords = array_map(fn($c) => array_merge($c, [$this->altitude]), $coords);
+            $coords = array_map(fn($c): array => array_merge($c, [$this->altitude]), $coords);
         }
-        $points = array_map(fn($c) => new ($to->value)($c), $coords);
+        $points = array_map(fn($c): object => new ($coordinateSystemEnum->value)($c), $coords);
         return new Polygon([$points]);
     }
 
     /**
      * 转为数组。
-     *
      */
     public function toArray(): array
     {
@@ -109,7 +107,6 @@ class RangePoint implements \JsonSerializable
 
     /**
      * 实现 JsonSerializable 接口，序列化为数组。
-     *
      */
     public function jsonSerialize(): array
     {

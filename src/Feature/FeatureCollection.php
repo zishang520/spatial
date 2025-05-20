@@ -8,9 +8,6 @@ use luoyy\Spatial\CoordinateReferenceSystem\CoordinateReferenceSystem;
 use luoyy\Spatial\Enums\TypeEnum;
 use luoyy\Spatial\GeoJson;
 
-use function array_map;
-use function array_merge;
-
 /**
  * GeoJSON 要素集合对象（FeatureCollection）。
  *
@@ -43,7 +40,6 @@ class FeatureCollection extends AbstractCollection
 
     /**
      * 获取集合中的 Feature 对象。
-     * @return array<Feature>
      */
     public function getFeatures(): array
     {
@@ -55,10 +51,10 @@ class FeatureCollection extends AbstractCollection
      */
     public function jsonSerialize(): array
     {
-        return array_merge(
+        return \array_merge(
             parent::jsonSerialize(),
-            ['features' => array_map(
-                static fn(Feature $feature) => $feature->jsonSerialize(),
+            ['features' => \array_map(
+                static fn(Feature $feature): array => $feature->jsonSerialize(),
                 $this->items
             )]
         );

@@ -21,13 +21,15 @@ class EGM96Universal
 
     private const DATA_FILE = '.data.bin';
 
-    private static $dt = null;
+    /**
+     * @var resource|false|null
+     */
+    private static $dt;
 
     /**
      * 根据 EGM96 获取平均海平面高度。
      *
      * @param PointInterface $point 原始坐标（请设置 altitude 属性值）
-     * @return float 平均海平面高度（米）
      * @throws \RangeException 纬度超出范围
      */
     public static function meanSeaLevel(PointInterface $point): float
@@ -38,11 +40,11 @@ class EGM96Universal
         }
         $lon = self::normalizeRadians($point->getLongitude() * self::RADIAN);
 
-        $topRow = floor(((M_PI / 2) - $lat) / self::INTERVAL);
-        $topRow = $topRow === self::NUM_ROWS - 1 ? $topRow - 1 : $topRow;
+        $topRow = (int) floor(((M_PI / 2) - $lat) / self::INTERVAL);
+        $topRow = ($topRow == self::NUM_ROWS - 1) ? $topRow - 1 : $topRow;
         $bottomRow = $topRow + 1;
 
-        $leftCol = floor(self::normalizeRadians($lon, M_PI) / self::INTERVAL);
+        $leftCol = (int) floor(self::normalizeRadians($lon, M_PI) / self::INTERVAL);
         $rightCol = ($leftCol + 1) % self::NUM_COLS;
 
         $topLeft = self::getValue($topRow, $leftCol);
@@ -63,7 +65,6 @@ class EGM96Universal
      * 将 WGS84 椭球高转换为 EGM96 高程。
      *
      * @param PointInterface $point 原始坐标（请设置 altitude 属性值）
-     * @return float EGM96 高程（米）
      */
     public static function ellipsoidToEgm96(PointInterface $point): float
     {
@@ -74,7 +75,6 @@ class EGM96Universal
      * 将 EGM96 高程转换为 WGS84 椭球高。
      *
      * @param PointInterface $point 原始坐标（请设置 altitude 属性值）
-     * @return float WGS84 椭球高（米）
      */
     public static function egm96ToEllipsoid(PointInterface $point): float
     {
@@ -101,10 +101,14 @@ class EGM96Universal
 
     private static function getData(int $id): int
     {
-        if (fseek(self::data(), $id * 2 + 1, SEEK_SET) !== 0) {
+        $fp = self::data();
+        if ($fp === false) {
+            throw new \RuntimeException('File read failed.');
+        }
+        if (fseek($fp, $id * 2 + 1, SEEK_SET) !== 0) {
             throw new \OutOfBoundsException('File offset setting failed.');
         }
-        if (($data = fread(self::data(), 2)) === false) {
+        if (($data = fread($fp, 2)) === false) {
             throw new \UnexpectedValueException('Failed to read file content.');
         }
         if (($u = unpack('s', $data)) === false) {
@@ -118,6 +122,9 @@ class EGM96Universal
         return self::getData($row * self::NUM_COLS + $col) / 100;
     }
 
+    /**
+     * @return resource|false
+     */
     private static function data()
     {
         if (is_null(self::$dt)) {
