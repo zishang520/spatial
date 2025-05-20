@@ -79,7 +79,7 @@ abstract class GeoJson implements JsonSerializable, JsonUnserializable
      *
      * @throws UnserializationException
      */
-    final public static function jsonUnserialize(mixed $json): static
+    final public static function jsonUnserialize(mixed $json): GeoJson
     {
         if (! is_array($json) && ! is_object($json)) {
             throw UnserializationException::invalidValue('GeoJson', $json, 'array or object');
