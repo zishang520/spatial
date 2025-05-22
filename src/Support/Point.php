@@ -11,7 +11,7 @@ use luoyy\Spatial\Spatial;
 use luoyy\Spatial\Transform;
 
 /**
- * WGS84 坐标系点（支持可选边界框、参考系参数）。
+ * 点（支持可选边界框、参考系参数）。
  */
 abstract class Point extends GeometryPoint implements PointInterface
 {

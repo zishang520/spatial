@@ -13,7 +13,7 @@ use luoyy\Spatial\Enums\TypeEnum;
  *
  * @see https://www.geojson.org/geojson-spec.html#point
  */
-class Point extends Geometry
+class Point extends Geometry implements \Stringable
 {
     /**
      * 构造函数。
@@ -39,6 +39,13 @@ class Point extends Geometry
         );
 
         $this->setOptionalConstructorArgs($args);
+    }
+
+    public function __toString(): string
+    {
+        [$lon, $lat] = $this->coordinates;
+        $alt = $this->coordinates[2] ?? null;
+        return ! is_null($alt) ? ("$lon,$lat,$alt") : ("$lon,$lat");
     }
 
     /**
