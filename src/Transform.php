@@ -2,7 +2,6 @@
 
 namespace luoyy\Spatial;
 
-use luoyy\Spatial\Contracts\PointInterface;
 use luoyy\Spatial\Enums\CoordinateSystemEnum;
 use luoyy\Spatial\Support\Point;
 use luoyy\Spatial\Support\PointBD09;
@@ -272,9 +271,9 @@ class Transform
     /**
      * 判断坐标点是否在中国境内。
      *
-     * @param PointInterface $point 坐标点
+     * @param Point $point 坐标点
      */
-    public static function outChina(PointInterface $point): bool
+    public static function outChina(Point $point): bool
     {
         return ! ($point->getLongitude() >= 72.004 && $point->getLongitude() <= 137.8347 && $point->getLatitude() >= 0.8293 && $point->getLatitude() <= 55.8271);
     }
@@ -340,12 +339,12 @@ class Transform
 
     /**
      * 七参数（Helmert）变换实现。
-     * @param PointInterface $point 源坐标点
+     * @param Point $point 源坐标点
      * @param array $src 源椭球参数（a, e2）
      * @param array $dst 目标椭球参数（a, e2）
      * @param array $p 七参数数组（tx, ty, tz, s, rx, ry, rz）
      */
-    private static function geoHelmert(PointInterface $point, array $src, array $dst, array $p): array
+    private static function geoHelmert(Point $point, array $src, array $dst, array $p): array
     {
         $phi = deg2rad($point->getLatitude());
         $lam = deg2rad($point->getLongitude());

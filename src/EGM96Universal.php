@@ -2,7 +2,7 @@
 
 namespace luoyy\Spatial;
 
-use luoyy\Spatial\Contracts\PointInterface;
+use luoyy\Spatial\Geometry\Point;
 
 /**
  * EGM96 高程模型工具类。
@@ -29,10 +29,10 @@ class EGM96Universal
     /**
      * 根据 EGM96 获取平均海平面高度。
      *
-     * @param PointInterface $point 原始坐标（请设置 altitude 属性值）
+     * @param Point $point 原始坐标（请设置 altitude 属性值）
      * @throws \RangeException 纬度超出范围
      */
-    public static function meanSeaLevel(PointInterface $point): float
+    public static function meanSeaLevel(Point $point): float
     {
         $lat = self::normalizeRadians($point->getLatitude() * self::RADIAN);
         if ($lat > M_PI || $lat < -M_PI) {
@@ -64,9 +64,9 @@ class EGM96Universal
     /**
      * 将 WGS84 椭球高转换为 EGM96 高程。
      *
-     * @param PointInterface $point 原始坐标（请设置 altitude 属性值）
+     * @param Point $point 原始坐标（请设置 altitude 属性值）
      */
-    public static function ellipsoidToEgm96(PointInterface $point): float
+    public static function ellipsoidToEgm96(Point $point): float
     {
         return $point->getAltitude() - self::meanSeaLevel($point);
     }
@@ -74,9 +74,9 @@ class EGM96Universal
     /**
      * 将 EGM96 高程转换为 WGS84 椭球高。
      *
-     * @param PointInterface $point 原始坐标（请设置 altitude 属性值）
+     * @param Point $point 原始坐标（请设置 altitude 属性值）
      */
-    public static function egm96ToEllipsoid(PointInterface $point): float
+    public static function egm96ToEllipsoid(Point $point): float
     {
         return $point->getAltitude() + self::meanSeaLevel($point);
     }

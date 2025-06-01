@@ -6,8 +6,9 @@ use luoyy\Spatial\Contracts\PointInterface;
 use luoyy\Spatial\Enums\CoordinateSystemEnum;
 use luoyy\Spatial\Enums\DirectionEnum;
 use luoyy\Spatial\Enums\LocationEnum;
+use luoyy\Spatial\Geometry\Point;
 use luoyy\Spatial\Support\LineString;
-use luoyy\Spatial\Support\Point;
+use luoyy\Spatial\Support\Point as SupportPoint;
 use luoyy\Spatial\Support\PointWGS84;
 use luoyy\Spatial\Support\Polygon;
 use luoyy\Spatial\Support\RangePoint;
@@ -40,11 +41,11 @@ class Spatial
     /**
      * 计算两点之间的距离（支持海拔高程）。
      *
-     * @param PointInterface $point1 坐标点1
-     * @param PointInterface $point2 坐标点2
+     * @param Point $point1 坐标点1
+     * @param Point $point2 坐标点2
      * @param float $radius 球半径，默认地球半径
      */
-    public static function distance(PointInterface $point1, PointInterface $point2, float $radius = self::EARTH_RADIUS): float
+    public static function distance(Point $point1, Point $point2, float $radius = self::EARTH_RADIUS): float
     {
         // 缓存属性，减少方法调用
         $lat1 = $point1->getLatitude();
@@ -212,12 +213,12 @@ class Spatial
     /**
      * 获取某点为中心的范围（指定方位）。
      *
-     * @param PointInterface $point 中心点
+     * @param Point $point 中心点
      * @param float $dist 距离（米）
      * @param LocationEnum $locationEnum 顶点方位
      * @param float $radius 球半径
      */
-    public static function pointLocationRange(PointInterface $point, float $dist, LocationEnum $locationEnum, float $radius = self::EARTH_RADIUS): RangePoint
+    public static function pointLocationRange(Point $point, float $dist, LocationEnum $locationEnum, float $radius = self::EARTH_RADIUS): RangePoint
     {
         $range = 180 / self::PI * $dist / $radius;
         $lngR = $range / cos($point->getLatitude() * self::RADIAN);
@@ -295,7 +296,7 @@ class Spatial
      * @param CoordinateSystemEnum $coordinateSystemEnum 目标坐标系
      * @throws \InvalidArgumentException 不支持的转换类型
      */
-    public static function transform(Point $point, CoordinateSystemEnum $coordinateSystemEnum): Point
+    public static function transform(SupportPoint $point, CoordinateSystemEnum $coordinateSystemEnum): SupportPoint
     {
         return Transform::transform($point, $coordinateSystemEnum);
     }
